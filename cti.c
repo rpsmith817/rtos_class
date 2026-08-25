@@ -9,10 +9,13 @@
 
 #include <stdint.h>
 #include <stdbool.h>
+
+#include "tm4c123gh6pm.h"   //hardware register and mask macros
+
+#include "cti.h"            //shell
 #include "debug.h"          //toAsciiHex()
 #include "clock.h"          //clock init
 #include "wait.h"           //waitMicrosecond()
-#include "tm4c123gh6pm.h"   //hardware register and mask macros
 
 //size defs for fields.
 #define MAX_CHARS 80
@@ -32,9 +35,9 @@ typedef struct _USER_DATA{
 
 
 //my lil strlen
-uint8_t strlength(const char str[]){		//having clearer bounds would prevent this from whiling away endlessly.	Set a limit maybe?
+uint8_t strlength(char* str){		//having clearer bounds would prevent this from whiling away endlessly.	Set a limit maybe?
     uint8_t len=0;
-    while(str[len]){len++;}     //while the position is not a string terminator add to our len counter.
+    while(str[len] && len < MAX_CHARS){len++;}     //while the position is not a string terminator add to our len counter.
     return len;                 //then return the count
 }
 
@@ -59,7 +62,7 @@ uint16_t myPow(float x, uint16_t n) {
     if (n == 0)
         return 1.0;
     int N = n;
-    //    //handle negative exponents. this portion won't be effective with an unsigned int, so it is commented out.
+    //    //handle negative exponents. this portion won't be effective with an unsigned int, so it is commented out. why have extra steps?
     //    if (N < 0) {
     //        x = 1 / x;
     //        N = -N;
@@ -183,6 +186,13 @@ void parseFields(USER_DATA *data){
             data->fieldCount++;
             while((data->buffer[i] > 65 && data->buffer[i] < 91)||(data->buffer[i] > 96 && data->buffer[i] < 123)){i++;}    //iterate til we aren't a letter.
         }
+        //special character check
+        if((data->buffer[i] == '&'))
+        {
+            data->fieldPosition[data->fieldCount] = i;
+            data->fieldType[data-fieldCount] = 's';
+            data->fieldCount++;
+        }
         //we assume a delimiter if the other tests prove false.
         data->buffer[i] = '\0';
         i++;
@@ -196,20 +206,46 @@ char* getFieldString(USER_DATA *data, uint8_t fieldNumber){
     if(fieldNumber > data->fieldCount)
         return '\0';
 
-    //"urgently do the needful."
+    //urgently do the needful.
     char* field;
     if(data->buffer[data->fieldPosition[fieldNumber]])              //while the buffer char at position of fieldPosition[fieldNumber] plus our iterator is not NULL
+    {
         field = &data->buffer[data->fieldPosition[fieldNumber]];      //write the character to our return string.
+    }
     return field;
 }
 
 //Returns the integer value of the field if the field number is in range and the field type is numeric or 0 otherwise.
 int32_t getFieldInteger(USER_DATA *data, uint8_t fieldNumber){
+    int32_t val=0;
     //check if we even have a value there, and if it is a number. If not then return 0
     if(fieldNumber > data->fieldCount || data->fieldType[fieldNumber] != 'n')
+    {
         return 0;
-    //otherwise we return ascii value minus the ascii offset is our return, if our value is between 0 and 9 (a single char)
-    return (data->buffer[data->fieldPosition[fieldNumber]] - 48);
+    }
+
+    char* field = getFieldString(data,fieldNumber); //get the full number as a c-string
+    uint8_t len = strlength(field);                 //get the length of the field for exponentiation
+    uint8_t i=0;
+    uint32_t tens=1;
+
+    //set initial tens value
+    for(i;i<len;i++)
+    {
+        tens*=10;
+    }
+
+    //reset iterator
+    i=0;
+
+    //loop through each idx
+    while(len!=0)
+    {
+        val += ((field[i++]-'0') * tens);       //add to value the numeric value of field times the tens place that it is in.
+        tens/=10;                               //divide by tens to reduce tens place
+        len--;                                    //iterate down
+    }
+    return val;
 }
 
 // This function returns true if the command matches the first field and the number of arguments (excluding the command field) is greater than or equal to the requested number of minimum arguments.
@@ -225,4 +261,22 @@ bool isCommand(USER_DATA *data, const char strCommand[], uint8_t minArguments){
     //return our lil boolean strcmplite.
     return stringComp((char*)strCommand,&data->buffer);
 
+}
+
+
+// shell loop //
+void shell(void)
+{
+    USER_DATA shelly;
+    shelly.fieldCount=0;
+    shelly.fieldType={};
+    shelly.fieldPosition={};
+    shelly.buffer[0]='\0';
+
+    for(;;){
+        if(kbhit())		                        //check if hardware event for keyboard and also our length is OK.
+        {
+            
+        }
+    }
 }

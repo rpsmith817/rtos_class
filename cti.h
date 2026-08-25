@@ -25,7 +25,7 @@ typedef struct _USER_DATA{
 
 
 //my lil strlen
-uint8_t strlength(const char str[]);
+uint8_t strlength(char *str);
 
 // Initialize UART0 on Port A
 void initUart0();
@@ -34,7 +34,7 @@ void initUart0();
 void putcUart0(char c);
 
 // Blocking function that writes a string when the UART buffer is not full
-void putsUart0(char* str);
+void putsUart0(char *str);
 
 //get a character from uart.
 char getcUart0();
@@ -56,6 +56,9 @@ int32_t getFieldInteger(USER_DATA *data, uint8_t fieldNumber);
 
 // This function returns true if the command matches the first field and the number of arguments (excluding the command field) is greater than or equal to the requested number of minimum arguments.
 bool isCommand(USER_DATA *data, const char strCommand[], uint8_t minArguments);
+
+//shell task/thread/loop
+void shell(void);
 
 
 #endif /* CTI_H_ */
