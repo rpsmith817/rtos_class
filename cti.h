@@ -52,7 +52,7 @@ void parseFields(USER_DATA *data);
 char* getFieldString(USER_DATA *data, uint8_t fieldNumber);
 
 //Returns the integer value of the field if the field number is in range and the field type is numeric or 0 otherwise.
-int32_t getFieldInteger(USER_DATA *data, uint8_t fieldNumber);
+uint32_t getFieldInteger(USER_DATA *data, uint8_t fieldNumber);
 
 // This function returns true if the command matches the first field and the number of arguments (excluding the command field) is greater than or equal to the requested number of minimum arguments.
 bool isCommand(USER_DATA *data, const char strCommand[], uint8_t minArguments);

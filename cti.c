@@ -25,7 +25,30 @@
 #define UART_TX_MASK 2
 #define UART_RX_MASK 1
 
-//stores user data
+//command type for members of command list.
+typedef struct {
+    const char *cmd;    //the command string
+    _callback cmdFunc;  //pointer to function command represents.  
+    uint8_t special;    //flag indicating special handling of command
+    uint8_t build;      //flag indicating command must be build instead of standard call
+} Cti_Cmd_t;
+
+//a list of commands and the functions that they will call.
+static const Cti_Cmd_t cti_cmd_list[] ={
+    {"reboot",      rebootie,      0, 0},
+    {"ps",          ps,            0, 0},
+    {"ipcs",        ipcs,          0, 0},
+    {"kill",        cb_kill,       0, 0},
+    {"pkill",       cb_pkill,      0, 0},
+    {"pi",          cb_pi,         0, 0},
+    {"preempt",     cb_preempt,    0, 0},
+    {"sched",       cb_sched,      0, 0},
+    {"pidof",       cb_pidof,      0, 0},
+    {"proc_name",   cb_bg_runner,  0, 0},
+    {NULL,NULL,NULL,NULL}
+}
+
+//stores entry data
 typedef struct _USER_DATA{
     char buffer[MAX_CHARS+1];               //raw input until parsed, then it contains fields and NULLs.
     uint8_t fieldCount;                     //current number of fields.
@@ -119,8 +142,11 @@ void putsUart0(char* str){
 
 //get a character from uart.
 char getcUart0(){
-    while (UART0_FR_R & UART_FR_RXFE);              // wait if uart0 tx fifo empty and also blink a light to show we are waiting for some input.
-    return UART0_DR_R & 0xFF;                       // pull char from FIFO
+    while (UART0_FR_R & UART_FR_RXFE)   // wait if uart0 tx fifo empty and also blink a light to show we are waiting for some input.
+    {
+        yield();                        //yield per assignment
+    }
+    return UART0_DR_R & 0xFF;           // pull char from FIFO
 }
 
 bool kbhit()
@@ -135,25 +161,30 @@ bool kbhit()
 //For the printable characters, add each character received to the buffer, increment the character count, and return from the function if the count of characters in the buffer is equal to MAX_CHARS. You may want to make the interface case insensitive. If this behavior is desired, convert upper-case to lower-case or vice-versa to make string comparisons easier.
 void getsUart0(USER_DATA *data){
     volatile uint8_t i = 0; //an iterator
-    while(i != MAX_CHARS){
-
+    while(i != MAX_CHARS)
+    {
         //go ahead and set the char, if we need to we will discard it after checking.
         data->buffer[i] = getcUart0();
         putcUart0(data->buffer[i]); //print it out for now.
 
         //if newline then set to null and return.
-        if(data->buffer[i] == 10 || data->buffer[i] == 13){
+        if(data->buffer[i] == 10 || data->buffer[i] == 13)
+        {
             data->buffer[i] = '\0';
             return;
         }
 
         //deal with backspaces
-        else if((data->buffer[i] == 8 || data->buffer[i] == 127 || data->buffer[i] > 127) && (i>1))
+        else if((data->buffer[i] == 8 || data->buffer[i] == 127 || data->buffer[i] > 127) && (i>0))
+        {
             i--;
+        }
 
         //if we are 32 or more we should maybe be ok.
-        else if(data->buffer[i]>=32 && data->buffer[i] < 127)
+        else if(data->buffer[i]>=32 && data->buffer[i] < 127 || data->buffer[i] == '&')
+        {
             i++;
+        }
     }
     data->buffer[i+1] = '\0';
     return;
@@ -170,7 +201,7 @@ void parseFields(USER_DATA *data){
     i=0;
     data->fieldCount = 0;   //if count is zero and we base everything on the count, then we don't have to worry about clearing everything, only count.
 
-    //the big loop, if there is data in the buffer, handle that data, unless we reach the MAX_FIELDS!!
+    //the big loop, if there is data in the buffer, handle that data, unless we reach the MAX_FIELDS
     while(data->buffer[i] && data->fieldCount < MAX_FIELDS){
         //numeric check
         if(data->buffer[i] > 47 && data->buffer[i] < 58){
@@ -216,8 +247,8 @@ char* getFieldString(USER_DATA *data, uint8_t fieldNumber){
 }
 
 //Returns the integer value of the field if the field number is in range and the field type is numeric or 0 otherwise.
-int32_t getFieldInteger(USER_DATA *data, uint8_t fieldNumber){
-    int32_t val=0;
+uint32_t getFieldInteger(USER_DATA *data, uint8_t fieldNumber){
+    uint32_t val=0;
     //check if we even have a value there, and if it is a number. If not then return 0
     if(fieldNumber > data->fieldCount || data->fieldType[fieldNumber] != 'n')
     {
@@ -263,6 +294,30 @@ bool isCommand(USER_DATA *data, const char strCommand[], uint8_t minArguments){
 
 }
 
+//convert from an integer into an ascii output.
+char* toAlpha(uint32_t in)
+{
+    char out[MAX_CHARS];    //the output string
+    char buf[max_chars];
+    uint32_t val=in;
+    uint8_t i=0;              //an iterator
+
+    //get length
+    while(val != 0)
+    {
+        val /= 10;
+        i++;
+    }
+    //set back to input value
+    val=in;
+    //loop through to get the value into the output buffer
+    for(i; i> 0; i--)
+    {
+        buf[i] = val%10;
+    }
+
+
+}
 
 // shell loop //
 void shell(void)
@@ -276,7 +331,10 @@ void shell(void)
     for(;;){
         if(kbhit())		                        //check if hardware event for keyboard and also our length is OK.
         {
+            getsUart0(&data);       //grab the data
+            parseFields(&data);     //parse the fields
             
+
         }
     }
 }

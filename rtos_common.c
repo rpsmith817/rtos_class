@@ -15,13 +15,25 @@ void rebootie(void)
 void yield(void);
 
 //display process (thread) status.
-void ps(void);
+void ps(void)
+{
+    putsUart0("PS Called");
+}
 
 //display inter-process (thread) status.
-void ipcs(void);
+void ipcs(void)
+{
+    putsUart0("IPCS Called");
+}
 
 //kills process (thread) associated with matching pid.
-void kill(uint32_t pid);
+void kill(uint32_t pid)
+{
+    
+}
+
+//kills process by name
+void pkill(char* proc_name);
 
 //turns priority inheritance on or off
 void pi(bool on);
