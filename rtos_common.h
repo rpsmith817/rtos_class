@@ -8,6 +8,8 @@
 #include stdbool.h
 #include stdint.h
 
+#include "cti.h"
+
 
 void yield(void);
 
@@ -23,8 +25,8 @@ void ipcs(void);
 //kills process (thread) associated with matching pid.
 void kill(uint32_t pid);
 
-//turns priority inheritance on or off
-void pi(bool on);
+//kills process by name
+void pkill(char* proc_name);
 
 //turns preemption on or off
 void preempt(bool on);
@@ -40,7 +42,6 @@ uint32_t pidof(char* name);
 
 //runs named process in the background
 void bg_runner(char* name);
-
 
 
 #endif

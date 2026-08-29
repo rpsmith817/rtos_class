@@ -25,49 +25,21 @@
 #define UART_TX_MASK 2
 #define UART_RX_MASK 1
 
-//command type for members of command list.
-typedef struct {
-    const char *cmd;    //the command string
-    _callback cmdFunc;  //pointer to function command represents.  
-    uint8_t special;    //flag indicating special handling of command
-    uint8_t build;      //flag indicating command must be build instead of standard call
-} Cti_Cmd_t;
-
-//a list of commands and the functions that they will call.
-static const Cti_Cmd_t cti_cmd_list[] ={
-    {"reboot",      rebootie,      0, 0},
-    {"ps",          ps,            0, 0},
-    {"ipcs",        ipcs,          0, 0},
-    {"kill",        cb_kill,       0, 0},
-    {"pkill",       cb_pkill,      0, 0},
-    {"pi",          cb_pi,         0, 0},
-    {"preempt",     cb_preempt,    0, 0},
-    {"sched",       cb_sched,      0, 0},
-    {"pidof",       cb_pidof,      0, 0},
-    {"proc_name",   cb_bg_runner,  0, 0},
-    {NULL,NULL,NULL,NULL}
-}
-
-//stores entry data
-typedef struct _USER_DATA{
-    char buffer[MAX_CHARS+1];               //raw input until parsed, then it contains fields and NULLs.
-    uint8_t fieldCount;                     //current number of fields.
-    uint8_t fieldPosition[MAX_FIELDS];      //Start index of data of interest.
-    char fieldType[MAX_FIELDS];             //data is either 'a' or 'n' for alpha and numeric.
-} USER_DATA;
 
 
 //my lil strlen
-uint8_t strlength(char* str){		//having clearer bounds would prevent this from whiling away endlessly.	Set a limit maybe?
+uint8_t strlength(char* str)
+{		//having clearer bounds would prevent this from whiling away endlessly.	Set a limit maybe?
     uint8_t len=0;
     while(str[len] && len < MAX_CHARS){len++;}     //while the position is not a string terminator add to our len counter.
     return len;                 //then return the count
 }
 
 //compare strings, return true if they match and false if they don't
-bool stringComp(char* str1, char* str2){
+bool stringComp(char* str1, char* str2)
+{
     uint8_t i = 0;
-    while(str1[i]){                 //while there is data in the str to read, read that data.
+    while(str1[i] & i!= MAX_CHARS){                 //while there is data in the str to read, read that data.
         if(str1[i] != str2[i]){     //if there is a character mismatch, then we return false.
             return 0;
         }
@@ -77,11 +49,11 @@ bool stringComp(char* str1, char* str2){
         return 0;
     else
         return 1;                   //We did it, they match!
-
 }
 
 //lightweight (imprecise) power function
-uint16_t myPow(float x, uint16_t n) {
+uint16_t myPow(float x, uint16_t n)
+{
     if (n == 0)
         return 1.0;
     int N = n;
@@ -101,7 +73,8 @@ uint16_t myPow(float x, uint16_t n) {
 }
 
 // Initialize UART0 on Port A
-void initUart0(){
+void initUart0()
+{
     // Enable clocks
     SYSCTL_RCGCUART_R |= SYSCTL_RCGCUART_R0;
     SYSCTL_RCGCGPIO_R |= SYSCTL_RCGCGPIO_R0;
@@ -126,7 +99,8 @@ void initUart0(){
 }
 
 // Blocking function that writes a serial character when the UART buffer is not full
-void putcUart0(char c){
+void putcUart0(char c)
+{
     while (UART0_FR_R & UART_FR_TXFF);               // wait if uart0 tx fifo full
     if(c=='\0')
         return;
@@ -141,7 +115,8 @@ void putsUart0(char* str){
 }
 
 //get a character from uart.
-char getcUart0(){
+char getcUart0()
+{
     while (UART0_FR_R & UART_FR_RXFE)   // wait if uart0 tx fifo empty and also blink a light to show we are waiting for some input.
     {
         yield();                        //yield per assignment
@@ -159,7 +134,8 @@ bool kbhit()
 //If the character received is a line feed (ASCII code 10) or carriage return (ASCII code 13), add a null terminator to the end of the buffer and return.
 //Ignore any other characters that are unprintable (ASCII code < 32 “space”)
 //For the printable characters, add each character received to the buffer, increment the character count, and return from the function if the count of characters in the buffer is equal to MAX_CHARS. You may want to make the interface case insensitive. If this behavior is desired, convert upper-case to lower-case or vice-versa to make string comparisons easier.
-void getsUart0(USER_DATA *data){
+void getsUart0(USER_DATA *data)
+{
     volatile uint8_t i = 0; //an iterator
     while(i != MAX_CHARS)
     {
@@ -195,7 +171,8 @@ void getsUart0(USER_DATA *data){
 // Assume that the previous character type is a delimiter when starting to search the buffer.
 // Go through the buffer from left to right, looking for the start of a field (a transition from a delimiter to a alpha or numeric character). For each field (at the transition), record the type of field (alpha or numeric – you can use ‘a’ or ‘n’ if you wish) in the type array, and the offset of the field within the buffer of the field in the position array, and increment the field count. Make the previous character stored equal to the new character and keep moving through the buffer string until the end is found. If the field count equals MAX_FIELDS, return from the function.
 //Before returning, convert all delimiters in the string to NULL characters to aid the getter functions to follow.
-void parseFields(USER_DATA *data){
+void parseFields(USER_DATA *data)
+{
     uint8_t i; //iterator
     //initialize values
     i=0;
@@ -232,7 +209,8 @@ void parseFields(USER_DATA *data){
 }
 
 //Returns the value of a field requested if the field number is in range or NULL otherwise.
-char* getFieldString(USER_DATA *data, uint8_t fieldNumber){
+char* getFieldString(USER_DATA *data, uint8_t fieldNumber)
+{
     //check if we even have a value there.
     if(fieldNumber > data->fieldCount)
         return '\0';
@@ -247,7 +225,8 @@ char* getFieldString(USER_DATA *data, uint8_t fieldNumber){
 }
 
 //Returns the integer value of the field if the field number is in range and the field type is numeric or 0 otherwise.
-uint32_t getFieldInteger(USER_DATA *data, uint8_t fieldNumber){
+uint32_t getFieldInteger(USER_DATA *data, uint8_t fieldNumber)
+{
     uint32_t val=0;
     //check if we even have a value there, and if it is a number. If not then return 0
     if(fieldNumber > data->fieldCount || data->fieldType[fieldNumber] != 'n')
@@ -280,7 +259,8 @@ uint32_t getFieldInteger(USER_DATA *data, uint8_t fieldNumber){
 }
 
 // This function returns true if the command matches the first field and the number of arguments (excluding the command field) is greater than or equal to the requested number of minimum arguments.
-bool isCommand(USER_DATA *data, const char strCommand[], uint8_t minArguments){
+bool isCommand(USER_DATA *data, const char strCommand[], uint8_t minArguments)
+{
 
     uint8_t i=0;    //iterator.
     char* stringy = data->buffer;
@@ -295,46 +275,106 @@ bool isCommand(USER_DATA *data, const char strCommand[], uint8_t minArguments){
 }
 
 //convert from an integer into an ascii output.
-char* toAlpha(uint32_t in)
+void intToAlpha(uint32_t in, char* buf)
 {
-    char out[MAX_CHARS];    //the output string
-    char buf[max_chars];
-    uint32_t val=in;
-    uint8_t i=0;              //an iterator
+    uint32_t val=in;        //set val to input so we can manipulate it without worry
+    uint8_t i=0;            //an iterator to hold some length
 
     //get length
     while(val != 0)
     {
         val /= 10;
         i++;
-    }
-    //set back to input value
+    }    
+    
+    //set value back to input value cause maybe I still need it??
     val=in;
+    
     //loop through to get the value into the output buffer
-    for(i; i> 0; i--)
+    for(int j; j<i; j++)
     {
-        buf[i] = val%10;
+        buf[j] = val%10;
     }
 
+    //terminate the string
+    buf[i] = '\0';
+    return;
+}
 
+//compare the input to the list of commands, then run the command if we match
+void doCommands(USER_DATA *data)
+{
+    uint8_t i;                      //an iterator
+    while(cti_cmd_list[i] != NULL)  //if there are still commands to check
+    {
+        if(isCommand(&data, cti_cmd_list[i].cmd))   //if we match
+        {
+            switch(cti_cmd_list[i].special)
+            {
+                case NONE:
+                    cti_cmd_list[i].cmdFunc();  //perform the related command
+                    return;                     //and cut to the chase
+                    break;
+                case UNUM32:
+                    cti_cmd_list[i].cmdFunc(getFieldInteger(&data,2));   //grab the 2nd field as an int to pass to the related command func
+                    return;
+                    break;
+                case ONOFF:
+                    if(getfieldString(&data,2) == "on")
+                    {
+                        cti_cmd_list[i].cmdFunc(1);
+                    }
+                    else if(getfieldString(&data,2) == "off")
+                    {
+                        cti_cmd_list[i].cmdFunc(0);
+                    }
+                    break;
+                case CSTR:
+                    cti_cmd_list[i].cmdFunc(getFieldString(&data,2));
+                    break;
+                case SCHED:
+                    if(getfieldString(&data,2) == "prio")
+                    {
+                        cti_cmd_list[i].cmdFunc(1);
+                    }
+                    else if(getfieldString(&data,2) == "rr")
+                    {
+                        cti_cmd_list[i].cmdFunc(0);
+                    }
+                    break;
+                default:
+                    break;  //how did we get here?
+            }
+        }
+        i++;                                //iterate
+    }
+    putsUart0("Command not found, try again.\r\n"); //if we didn't find the command yell about it
+    return;                                         //and get out
+}
+
+//clear the user data
+void clearData(USER_DATA *data)
+{
+    data-fieldCount=0;
+    data.fieldType={};
+    data.fieldPosition={};
+    data.buffer[0]='\0';
 }
 
 // shell loop //
 void shell(void)
 {
-    USER_DATA shelly;
-    shelly.fieldCount=0;
-    shelly.fieldType={};
-    shelly.fieldPosition={};
-    shelly.buffer[0]='\0';
+    USER_DATA data;
+    clearData(&data);
 
     for(;;){
         if(kbhit())		                        //check if hardware event for keyboard and also our length is OK.
         {
             getsUart0(&data);       //grab the data
             parseFields(&data);     //parse the fields
-            
+            doCommands(&data);    //check if we have a matching command
 
         }
     }
 }
+

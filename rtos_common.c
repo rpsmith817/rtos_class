@@ -3,6 +3,7 @@
 // date: 8/24/2026
 
 #include "rtos_common.h"
+
 //reboot command. see tm4 datasheet p164-165 for details
 void rebootie(void)
 {
@@ -12,6 +13,7 @@ void rebootie(void)
     NVIC_APINT_R |= NVIC_APINT_SYSRESETREQ; 
 }
 
+//empty thing
 void yield(void);
 
 //display process (thread) status.
@@ -29,14 +31,13 @@ void ipcs(void)
 //kills process (thread) associated with matching pid.
 void kill(uint32_t pid)
 {
-    
+    char buf[MAX_CHARS];
+    intToAlpha(pid, &buf);
+    putsUart0(&buf);
 }
 
 //kills process by name
 void pkill(char* proc_name);
-
-//turns priority inheritance on or off
-void pi(bool on);
 
 //turns preemption on or off
 void preempt(bool on);

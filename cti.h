@@ -15,17 +15,55 @@
 #define MAX_CHARS 80
 #define MAX_FIELDS 5
 
+//what kinda type is needed by a command
+typedef enum 
+{
+    NONE,   // 0= no special handling.
+    UNUM32, //uint32_t
+    ONOFF,  //a bool whose input is a str == on or off
+    CSTR,   //char*
+    SCHED,  //also a bool, but the input isn't on/off
+} TypeType;
+
 //stores user data
-typedef struct _USER_DATA{
+typedef struct _USER_DATA {
     char buffer[MAX_CHARS+1];               //raw input until parsed, then it contains fields and NULLs.
     uint8_t fieldCount;                     //These values are always index number + 1 style for better truthiness. AKA if there is no count then fieldCount = 0 = FALSE, else fieldCount = TRUE.
     uint8_t fieldPosition[MAX_FIELDS];      //Start index of data of interest.
     char fieldType[MAX_FIELDS];             //data is either 'a' or 'n' for alpha and numeric.
 } USER_DATA;
 
+//command type for members of command list.
+typedef struct _Cti_Cmd_t {
+    const char *cmd;    //the command string
+    _callback cmdFunc;  //pointer to function command represents.  
+    TypeType special;    //flag indicating type of arg needed by a command
+} Cti_Cmd_t;
+
+//a list of commands and the functions that they will call. We could organize by most commonly used, but I don't know what will be used...
+static const Cti_Cmd_t cti_cmd_list[] = {
+    {"help",        helpMe,     NONE},
+    {"reboot",      rebootie,   NONE},
+    {"ps",          ps,         NONE},
+    {"ipcs",        ipcs,       NONE},
+    {"kill",        kill,       UNUM32},
+    {"pkill",       pkill,      CSTR},
+    {"pi",          pi,         ONOFF},
+    {"preempt",     preempt,    ONOFF},
+    {"sched",       sched,      SCHED},
+    {"pidof",       pidof,      CSTR},
+    {"proc_name",   bg_runner,  CSTR},
+    {NULL,NULL,NULL,NULL}   //the NULL entry to let us know we are done. dunno if we need it but it is nice to have.
+}
 
 //my lil strlen
 uint8_t strlength(char *str);
+
+//my lil string compare
+bool stringComp(char* str1, char* str2);
+
+//lightweight (imprecise) power function
+uint16_t myPow(float x, uint16_t n);
 
 // Initialize UART0 on Port A
 void initUart0();
@@ -56,6 +94,12 @@ uint32_t getFieldInteger(USER_DATA *data, uint8_t fieldNumber);
 
 // This function returns true if the command matches the first field and the number of arguments (excluding the command field) is greater than or equal to the requested number of minimum arguments.
 bool isCommand(USER_DATA *data, const char strCommand[], uint8_t minArguments);
+
+//convert from an integer into an ascii output.
+void intToAlpha(uint32_t in);
+
+//compare the input to the list of commands, then run the command if we match
+void doCommands(USER_DATA *data);
 
 //shell task/thread/loop
 void shell(void);

@@ -10,7 +10,6 @@
 #include "tm4c123gh6pm.h"	//main header for target hw
 #include "cti.h"			//common terminal interface
 #include "clock.h"			//losh file that sets clock to 40mhz
-#include "uart0.h"
 #include "gpio.h"
 #include "cti.h"
 #include "rtos_common.h"
