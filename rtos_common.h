@@ -5,8 +5,8 @@
 #define RTOS_COMMON_H
 
 
-#include stdbool.h
-#include stdint.h
+#include <stdbool.h>
+#include <stdint.h>
 
 #include "cti.h"
 
@@ -35,7 +35,7 @@ void preempt(bool on);
 void pi(bool on);
 
 //select priority or round-robin scheduling.
-void sched(bool prio_on)
+void sched(bool prio_on);
 
 //returns the pid from the process name
 uint32_t pidof(char* name);

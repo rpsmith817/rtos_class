@@ -25,13 +25,84 @@
 #define UART_TX_MASK 2
 #define UART_RX_MASK 1
 
+void helpMe()
+{
+    putsUart0("ryan is laz\r\n");
+}
+
+
+//helper commands to run functions
+void cmd_help(USER_DATA data)
+{
+    helpMe();
+}
+
+void cmd_rebootie(USER_DATA data)
+{
+    rebootie();
+}
+void cmd_ps(USER_DATA data)
+{
+    ps();
+}
+void cmd_ipcs(USER_DATA data)
+{
+    ipcs();
+}
+void cmd_kill(USER_DATA data)
+{
+    //get the integer
+
+    //then call the function
+    kill(uint32_t pid);
+}
+void cmd_pkill(USER_DATA data)
+{
+    //get the string
+
+    //then call the function
+    pkill(char* proc_name);
+}
+void cmd_pi(USER_DATA data)
+{
+    bool on;
+    //get the string
+
+    if(stringComp("on",getFieldString(data,2)))
+    {
+        on=1;
+    }
+    else 
+    {
+        on=0;
+    }
+
+    //then call the function
+    pi(on);
+}
+void cmd_preempt(USER_DATA data)
+{
+
+}
+void cmd_sched(USER_DATA data)
+{
+
+}
+void cmd_pidof(USER_DATA data)
+{
+
+}
+void cmd_bg_runner(USER_DATA data)
+{
+
+}
 
 
 //my lil strlen
 uint8_t strlength(char* str)
 {		//having clearer bounds would prevent this from whiling away endlessly.	Set a limit maybe?
     uint8_t len=0;
-    while(str[len] && len < MAX_CHARS){len++;}     //while the position is not a string terminator add to our len counter.
+    while(str[len] && (len < MAX_CHARS)){len++;}     //while the position is not a string terminator add to our len counter.
     return len;                 //then return the count
 }
 
@@ -331,7 +402,7 @@ void doCommands(USER_DATA *data)
                     break;
                 case CSTR:
                     cti_cmd_list[i].cmdFunc(getFieldString(&data,2));
-                    break;
+                    break;  
                 case SCHED:
                     if(getfieldString(&data,2) == "prio")
                     {

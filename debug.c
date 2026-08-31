@@ -9,6 +9,7 @@
 #include <stdbool.h>
 #include "clock.h"          //clock init
 #include "wait.h"           //waitMicrosecond()
+#include "debug.h"
 #include "tm4c123gh6pm.h"   //hardware register and mask macros
 
 
@@ -53,19 +54,6 @@ uint32_t currentTime(){
 //return the difference between two times
 uint32_t deltaTime(uint32_t t0, uint32_t t1){
     return t0-t1;
-}
-
-//systick ISR, which continuously counts milliseconds.
-void SysTick_Handler(){
-    systemTicker++;
-    iamatime=systemTicker;
-    iamaninterval = deltaTime(iamatime,iamalsoatime);
-    if(iamaninterval< 500)
-        redLED(1);
-    if(iamaninterval > 500)
-        redLED(0);
-    if(iamaninterval > 1000)
-        iamalsoatime=iamatime;
 }
 
 //**LED Control Stuff**//

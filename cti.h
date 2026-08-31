@@ -15,15 +15,6 @@
 #define MAX_CHARS 80
 #define MAX_FIELDS 5
 
-//what kinda type is needed by a command
-typedef enum 
-{
-    NONE,   // 0= no special handling.
-    UNUM32, //uint32_t
-    ONOFF,  //a bool whose input is a str == on or off
-    CSTR,   //char*
-    SCHED,  //also a bool, but the input isn't on/off
-} TypeType;
 
 //stores user data
 typedef struct _USER_DATA {
@@ -36,25 +27,12 @@ typedef struct _USER_DATA {
 //command type for members of command list.
 typedef struct _Cti_Cmd_t {
     const char *cmd;    //the command string
-    _callback cmdFunc;  //pointer to function command represents.  
+    void* cmdFunc;  //pointer to function command represents.  
     TypeType special;    //flag indicating type of arg needed by a command
 } Cti_Cmd_t;
 
-//a list of commands and the functions that they will call. We could organize by most commonly used, but I don't know what will be used...
-static const Cti_Cmd_t cti_cmd_list[] = {
-    {"help",        helpMe,     NONE},
-    {"reboot",      rebootie,   NONE},
-    {"ps",          ps,         NONE},
-    {"ipcs",        ipcs,       NONE},
-    {"kill",        kill,       UNUM32},
-    {"pkill",       pkill,      CSTR},
-    {"pi",          pi,         ONOFF},
-    {"preempt",     preempt,    ONOFF},
-    {"sched",       sched,      SCHED},
-    {"pidof",       pidof,      CSTR},
-    {"proc_name",   bg_runner,  CSTR},
-    {NULL,NULL,NULL,NULL}   //the NULL entry to let us know we are done. dunno if we need it but it is nice to have.
-}
+//lists commands and their structure
+void helpMe();
 
 //my lil strlen
 uint8_t strlength(char *str);
@@ -104,5 +82,20 @@ void doCommands(USER_DATA *data);
 //shell task/thread/loop
 void shell(void);
 
+//a list of commands and the functions that they will call. We could organize by most commonly used, but I don't know what will be used...
+static const Cti_Cmd_t cti_cmd_list[] = {
+    {"help",        cmd_helpMe,     NONE},
+    {"reboot",      cmd_rebootie,   NONE},
+    {"ps",          cmd_ps,         NONE},
+    {"ipcs",        cmd_ipcs,       NONE},
+    {"kill",        cmd_kill,       UNUM32},
+    {"pkill",       cmd_pkill,      CSTR},
+    {"pi",          cmd_pi,         ONOFF},
+    {"preempt",     cmd_preempt,    ONOFF},
+    {"sched",       cmd_sched,      SCHED},
+    {"pidof",       cmd_pidof,      CSTR},
+    {"proc_name",   cmd_bg_runner,  CSTR},
+    {0,0,0,0}   //the NULL entry to let us know we are done. dunno if we need it but it is nice to have.
+};
 
 #endif /* CTI_H_ */
