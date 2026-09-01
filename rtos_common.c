@@ -69,10 +69,12 @@ void pi(bool on)
     if(on)
     {
         putsUart0("pi on\r\n");
+        return;
     }
     else 
     {
         putsUart0("pi off\r\n");
+        return;
     }
 }
 

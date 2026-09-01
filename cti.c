@@ -96,7 +96,7 @@ void cmd_pi(USER_DATA *data)
     bool on;
     
     //get the string (on|off)
-    if(stringComp("on",getFieldString(data,1)))
+    if(stringComp("on\0",getFieldString(data,1)))
     {
         on=1;
     }
@@ -113,7 +113,7 @@ void cmd_preempt(USER_DATA *data)
     bool on;
 
     //get the string (on|off)
-    if(stringComp("on",getFieldString(data,1)))
+    if(stringComp("on\0",getFieldString(data,1)))
     {
         on=1;
     }
@@ -130,7 +130,7 @@ void cmd_sched(USER_DATA *data)
         bool on;
 
     //get the string (prio|rr)
-    if(stringComp("prio",getFieldString(data,1)))
+    if(stringComp("prio\0",getFieldString(data,1)))
     {
         on=1;
     }
@@ -363,7 +363,7 @@ uint32_t getFieldInteger(USER_DATA *data, uint8_t fieldNumber)
     uint32_t tens=1;
 
     //set initial tens value
-    for(i=0;i<len;i++)
+    for(i=1;i<len;i++)
     {
         tens*=10;
     }
@@ -401,28 +401,53 @@ bool isCommand(USER_DATA *data, const char strCommand[], uint8_t minArguments)
 void intToAlpha(uint32_t in, char* buf)
 {
     uint32_t val=in;        //set val to input so we can manipulate it without worry
-    uint8_t i=0;            //an iterator to hold some length
+    uint8_t len=0;            //an iterator to hold some length
+
+    //shortcut if we are 0.
+    if(in==0)
+    {
+        buf[0]='0';
+        buf[1]='\0';
+        return;
+    }
 
     //get length
     while(val != 0)
     {
         val /= 10;
-        i++;
+        len++;
     }    
     
-    //set value back to input value cause maybe I still need it??
-    val=in;
-    
+    val=1;
+    uint32_t intermediate=0;
     //loop through to get the value into the output buffer
     uint8_t j;
-    for(j=0; j<i; j++)
+    int16_t i;
+    for(i=len-1;i>-1;i--)
     {
-        buf[j] = (val%10) + '0';    //take each decimal value, add the ascii offset.
+        for(j=0; j<i; j++)
+        {
+            val*=10;
+        }
+        intermediate = ((in/val));
+        intermediate = intermediate %10;
+        buf[len-1-i] = intermediate +'0';
+        val=1;
     }
 
     //terminate the string
-    buf[i] = '\0';
+    buf[len] = '\0';
     return;
+}
+
+
+void lowerCaseify(USER_DATA *data)
+{
+    uint8_t i=0;
+    while(data->buffer[i] != '\0')      //while we aren't null we are still in the first field by now.
+    {
+        data->buffer[i] -= ('A'-'a');   //reduce by the upper/lower gap in ASCII
+    }
 }
 
 //compare the input to the list of commands, then run the command if we match
@@ -438,7 +463,7 @@ void doCommands(USER_DATA *data)
         }
         i++;                                //iterate
     }
-    if(stringComp(getFieldStr(data,1),"&"))
+    if(stringComp(getFieldString(data,1),"&"))
     {
         cti_cmd_list[10].cmdFunc(data);
     }
