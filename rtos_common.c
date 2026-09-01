@@ -34,8 +34,8 @@ void ipcs(void)
 void kill(uint32_t pid)
 {
     char buf[MAX_CHARS];
-    intToAlpha(pid, &buf);
-    putsUart0(&buf);
+    intToAlpha(pid, (char*)&buf);
+    putsUart0((char*)&buf);
 }
 
 //kills process by name

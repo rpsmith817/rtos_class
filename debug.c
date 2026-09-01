@@ -73,7 +73,12 @@ void init_LEDs()
 {
     //init gpio clock for portf
     SYSCTL_RCGCGPIO_R |= SYSCTL_RCGCGPIO_R5; //R5 is the reserved name for portf per datasheet.
-    _delay_cycles(3);                        //datasheet says you need 3 clock cycles prior to gpio being able to r/w
+    //delay 3 cycles per datasheet
+    //replacement to legacy intrinsic that is no longer supported. waits 3 cycles. REF:https://e2e.ti.com/support/tools/code-composer-studio-group/ccs/f/code-composer-studio-forum/961241/__delay_cycles-is-undefined
+    __asm(  " NOP\n"
+            " NOP\n"
+            " NOP");    
+    //Though even that didn't work, so breaking it out into discrete nops was needed.
 
     //GPIODIR is next.
     GPIO_PORTF_DIR_R |= 0x0E; //sets LED pins to outputs.

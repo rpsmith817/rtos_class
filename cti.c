@@ -13,7 +13,7 @@
 #include "tm4c123gh6pm.h"   //hardware register and mask macros
 
 #include "cti.h"            //shell
-#include "debug.h"          //toAsciiHex()
+#include "debug.h"          //redLED
 #include "clock.h"          //clock init
 #include "wait.h"           //waitMicrosecond()
 #include "rtos_common.h"    //common rtos functions.
@@ -26,6 +26,23 @@
 #define UART_TX_MASK 2
 #define UART_RX_MASK 1
 
+//an extern def is in cti.h for anything that needs this table.
+const Cti_Cmd_t cti_cmd_list[] = {
+    {"help",        cmd_helpMe,     0}, //get list of commands
+    {"reboot",      cmd_rebootie,   0}, //reboot the device
+    {"ps",          cmd_ps,         0}, //get process status...maybe it returns the status of all running processes?
+    {"ipcs",        cmd_ipcs,       0}, //call interprocess thread, whatever that means for this system
+    {"kill",        cmd_kill,       1}, //kill [pid] -> terminate process by id
+    {"pkill",       cmd_pkill,      1}, //kill [pname] -> terminate process by name
+    {"pi",          cmd_pi,         1}, //pi on|off -> toggles priority inheritance
+    {"preempt",     cmd_preempt,    1}, // on|off ->toggles preemption
+    {"sched",       cmd_sched,      1}, // prio|rr -> toggles priority or round-robin scheduling
+    {"pidof",       cmd_pidof,      1}, //displays pid be pname
+    {"proc_name",   cmd_bg_runner,  1}, //runs named program in background. we may need to make an entry for each function name?
+    {0,0,0}   //the NULL entry to let us know we are done. dunno if we need it but it is nice to have.
+};
+
+//eventually this will put out a list of commands so I know what I should be typing for tests.
 void helpMe()
 {
     putsUart0("ryan is laz\r\n");
@@ -33,7 +50,7 @@ void helpMe()
 
 
 //helper commands to run functions
-void cmd_help(USER_DATA *data)
+void cmd_helpMe(USER_DATA *data)
 {
     helpMe();
 }
@@ -55,21 +72,21 @@ void cmd_kill(USER_DATA *data)
     //get the integer
 
     //then call the function
-    kill(getFieldInteger(data,2));
+    kill(getFieldInteger(data,1));
 }
 void cmd_pkill(USER_DATA *data)
 {
     //get the string
 
     //then call the function
-    pkill(pidof(getFieldString(data,2)));
+    pkill(getFieldString(data,1));
 }
 void cmd_pi(USER_DATA *data)
 {
     bool on;
     
     //get the string (on|off)
-    if(stringComp("on",getFieldString(data,2)))
+    if(stringComp("on",getFieldString(data,1)))
     {
         on=1;
     }
@@ -86,7 +103,7 @@ void cmd_preempt(USER_DATA *data)
     bool on;
 
     //get the string (on|off)
-    if(stringComp("on",getFieldString(data,2)))
+    if(stringComp("on",getFieldString(data,1)))
     {
         on=1;
     }
@@ -103,7 +120,7 @@ void cmd_sched(USER_DATA *data)
         bool on;
 
     //get the string (prio|rr)
-    if(stringComp("prio",getFieldString(data,2)))
+    if(stringComp("prio",getFieldString(data,1)))
     {
         on=1;
     }
@@ -118,18 +135,18 @@ void cmd_sched(USER_DATA *data)
 void cmd_pidof(USER_DATA *data)
 {
     //get the string and call the func
-    pidof(getFieldString(data,2));
+    pidof(getFieldString(data,1));
 
 }
 void cmd_bg_runner(USER_DATA *data)
 {
-    redLed(1);  //red led on.
+    redLED(1);  //red led on.
 }
 
 
 //my lil strlen
 uint8_t strlength(char* str)
-{		//having clearer bounds would prevent this from whiling away endlessly.	Set a limit maybe?
+{		
     uint8_t len=0;
     while(str[len] && (len < MAX_CHARS)){len++;}     //while the position is not a string terminator add to our len counter.
     return len;                 //then return the count
@@ -139,7 +156,7 @@ uint8_t strlength(char* str)
 bool stringComp(char* str1, char* str2)
 {
     uint8_t i = 0;
-    while(str1[i] & i!= MAX_CHARS){                 //while there is data in the str to read, read that data.
+    while(str1[i] != '\0' && (i != MAX_CHARS)){                 //while there is data in the str to read, read that data.
         if(str1[i] != str2[i]){     //if there is a character mismatch, then we return false.
             return 0;
         }
@@ -178,8 +195,10 @@ void initUart0()
     // Enable clocks
     SYSCTL_RCGCUART_R |= SYSCTL_RCGCUART_R0;
     SYSCTL_RCGCGPIO_R |= SYSCTL_RCGCGPIO_R0;
-    _delay_cycles(3);
-
+    __asm(  " NOP\n"
+            " NOP\n"
+            " NOP");    //replacement to legacy intrinsic that is no longer supported. waits 3 cycles. REF:https://e2e.ti.com/support/tools/code-composer-studio-group/ccs/f/code-composer-studio-forum/961241/__delay_cycles-is-undefined
+                        //Though even that didn't work, so breaking it out into discrete nops was needed.
     // Configure UART0 pins
     GPIO_PORTA_DR2R_R |= UART_TX_MASK;                  // set drive strength to 2mA (not needed since default configuration -- for clarity)
     GPIO_PORTA_DEN_R |= UART_TX_MASK | UART_RX_MASK;    // enable digital on UART0 pins
@@ -257,7 +276,7 @@ void getsUart0(USER_DATA *data)
         }
 
         //if we are 32 or more we should maybe be ok.
-        else if(data->buffer[i]>=32 && data->buffer[i] < 127 || data->buffer[i] == '&')
+        else if((data->buffer[i]>=32 && data->buffer[i] < 127) || data->buffer[i] == '&') //or if we are special char.
         {
             i++;
         }
@@ -295,10 +314,10 @@ void parseFields(USER_DATA *data)
             while((data->buffer[i] > 65 && data->buffer[i] < 91)||(data->buffer[i] > 96 && data->buffer[i] < 123)){i++;}    //iterate til we aren't a letter.
         }
         //special character check
-        if((data->buffer[i] == '&'))
+        if(data->buffer[i] == '&')
         {
             data->fieldPosition[data->fieldCount] = i;
-            data->fieldType[data-fieldCount] = 's';
+            data->fieldType[data->fieldCount] = 's';
             data->fieldCount++;
         }
         //we assume a delimiter if the other tests prove false.
@@ -312,16 +331,20 @@ void parseFields(USER_DATA *data)
 char* getFieldString(USER_DATA *data, uint8_t fieldNumber)
 {
     //check if we even have a value there.
-    if(fieldNumber > data->fieldCount)
-        return '\0';
+    if(fieldNumber >= data->fieldCount)
+        return (char*)'\0';
 
     //urgently do the needful.
     char* field;
-    if(data->buffer[data->fieldPosition[fieldNumber]])              //while the buffer char at position of fieldPosition[fieldNumber] plus our iterator is not NULL
+    if(data->buffer[data->fieldPosition[fieldNumber]]!= '\0')              //while the buffer char at position of fieldPosition[fieldNumber] plus our iterator is not NULL
     {
         field = &data->buffer[data->fieldPosition[fieldNumber]];      //write the character to our return string.
+        return field;   //return the field we just set
     }
-    return field;
+    else
+    {
+        return (char*)'\0'; //otherwise at least return null.
+    }
 }
 
 //Returns the integer value of the field if the field number is in range and the field type is numeric or 0 otherwise.
@@ -340,7 +363,7 @@ uint32_t getFieldInteger(USER_DATA *data, uint8_t fieldNumber)
     uint32_t tens=1;
 
     //set initial tens value
-    for(i;i<len;i++)
+    for(i=0;i<len;i++)
     {
         tens*=10;
     }
@@ -362,16 +385,16 @@ uint32_t getFieldInteger(USER_DATA *data, uint8_t fieldNumber)
 bool isCommand(USER_DATA *data, const char strCommand[], uint8_t minArguments)
 {
 
-    uint8_t i=0;    //iterator.
-    char* stringy = data->buffer;
-
     //if the minimum argument number is more than our fields give
     if(minArguments > (data->fieldCount)-1)
+    {
         return 0;
-
+    }
+    else 
+    {
     //return our lil boolean strcmplite.
-    return stringComp((char*)strCommand,&data->buffer);
-
+    return stringComp((char*)strCommand,data->buffer);
+    }
 }
 
 //convert from an integer into an ascii output.
@@ -391,9 +414,9 @@ void intToAlpha(uint32_t in, char* buf)
     val=in;
     
     //loop through to get the value into the output buffer
-    for(int j; j<i; j++)
+    for(int j=0; j<i; j++)
     {
-        buf[j] = val%10;
+        buf[j] = (val%10) + '0';    //take each decimal value, add the ascii offset.
     }
 
     //terminate the string
@@ -404,12 +427,13 @@ void intToAlpha(uint32_t in, char* buf)
 //compare the input to the list of commands, then run the command if we match
 void doCommands(USER_DATA *data)
 {
-    uint8_t i;                      //an iterator
+    uint8_t i=0;                      //an iterator
     while(cti_cmd_list[i].cmd != 0)  //if there are still commands to check
     {
         if(isCommand(data, cti_cmd_list[i].cmd,cti_cmd_list[i].minArguments))   //if we match
         {
-            cti_cmd_list[i].cmdFunc(data);
+            cti_cmd_list[i].cmdFunc(data);  //run it
+            return;                         //we found a match so gtfo
         }
         i++;                                //iterate
     }

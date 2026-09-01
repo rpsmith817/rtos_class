@@ -24,6 +24,9 @@ typedef struct _USER_DATA {
     char fieldType[MAX_FIELDS];             //data is either 'a' or 'n' for alpha and numeric.
 } USER_DATA;
 
+//typedef of callbacks
+typedef void(*callback_t)(USER_DATA *data);
+
 //command type for members of command list.
 typedef struct _Cti_Cmd_t {
     const char *cmd;    //the command string
@@ -33,9 +36,6 @@ typedef struct _Cti_Cmd_t {
 
 //lists commands and their structure
 void helpMe();
-
-//typedef of callbacks
-typedef void(*callback)(USER_DATA *data) callback_t;
 
 //protypes of callbacks
 void cmd_helpMe(USER_DATA *data);
@@ -90,7 +90,7 @@ uint32_t getFieldInteger(USER_DATA *data, uint8_t fieldNumber);
 bool isCommand(USER_DATA *data, const char strCommand[], uint8_t minArguments);
 
 //convert from an integer into an ascii output.
-void intToAlpha(uint32_t in);
+void intToAlpha(uint32_t in, char* buf);
 
 //compare the input to the list of commands, then run the command if we match
 void doCommands(USER_DATA *data);
@@ -98,8 +98,9 @@ void doCommands(USER_DATA *data);
 //shell task/thread/loop
 void shell(void);
 
-//a list of commands and the functions that they will call. We could organize by most commonly used, but I don't know what will be used...
-static const Cti_Cmd_t cti_cmd_list[] = {
+//a list of commands and the functions that they will call. We could organize by most commonly used, but I don't know what will be used... We will make 1 table in cti.c and have cti.h provide a reference to it.
+extern const Cti_Cmd_t cti_cmd_list[]; 
+/*{
     {"help",        cmd_helpMe,     0}, //get list of commands
     {"reboot",      cmd_rebootie,   0}, //reboot the device
     {"ps",          cmd_ps,         1}, //get process status (likely needs a pid, or might give all running processes)
@@ -112,6 +113,6 @@ static const Cti_Cmd_t cti_cmd_list[] = {
     {"pidof",       cmd_pidof,      1}, //displays pid be pname
     {"proc_name",   cmd_bg_runner,  1}, //runs named program in background. we may need to make an entry for each function name?
     {0,0,0}   //the NULL entry to let us know we are done. dunno if we need it but it is nice to have.
-};
+};*/
 
 #endif /* CTI_H_ */
