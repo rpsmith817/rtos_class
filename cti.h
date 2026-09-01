@@ -27,14 +27,30 @@ typedef struct _USER_DATA {
 //command type for members of command list.
 typedef struct _Cti_Cmd_t {
     const char *cmd;    //the command string
-    void* cmdFunc;  //pointer to function command represents.  
-    TypeType special;    //flag indicating type of arg needed by a command
+    callback_t cmdFunc;      //pointer to function command represents.  
+    uint8_t minArguments;    //number of arguments required to run a command.
 } Cti_Cmd_t;
 
 //lists commands and their structure
 void helpMe();
 
-//my lil strlen
+//typedef of callbacks
+typedef void(*callback)(USER_DATA *data) callback_t;
+
+//protypes of callbacks
+void cmd_helpMe(USER_DATA *data);
+void cmd_rebootie(USER_DATA *data);
+void cmd_ps(USER_DATA *data);
+void cmd_ipcs(USER_DATA *data);
+void cmd_kill(USER_DATA *data);
+void cmd_pkill(USER_DATA *data);
+void cmd_pi(USER_DATA *data);
+void cmd_preempt(USER_DATA *data);
+void cmd_sched(USER_DATA *data);
+void cmd_pidof(USER_DATA *data);
+void cmd_bg_runner(USER_DATA *data);
+
+//my lil strlenm;    /
 uint8_t strlength(char *str);
 
 //my lil string compare
@@ -84,18 +100,18 @@ void shell(void);
 
 //a list of commands and the functions that they will call. We could organize by most commonly used, but I don't know what will be used...
 static const Cti_Cmd_t cti_cmd_list[] = {
-    {"help",        cmd_helpMe,     NONE},
-    {"reboot",      cmd_rebootie,   NONE},
-    {"ps",          cmd_ps,         NONE},
-    {"ipcs",        cmd_ipcs,       NONE},
-    {"kill",        cmd_kill,       UNUM32},
-    {"pkill",       cmd_pkill,      CSTR},
-    {"pi",          cmd_pi,         ONOFF},
-    {"preempt",     cmd_preempt,    ONOFF},
-    {"sched",       cmd_sched,      SCHED},
-    {"pidof",       cmd_pidof,      CSTR},
-    {"proc_name",   cmd_bg_runner,  CSTR},
-    {0,0,0,0}   //the NULL entry to let us know we are done. dunno if we need it but it is nice to have.
+    {"help",        cmd_helpMe,     0}, //get list of commands
+    {"reboot",      cmd_rebootie,   0}, //reboot the device
+    {"ps",          cmd_ps,         1}, //get process status (likely needs a pid, or might give all running processes)
+    {"ipcs",        cmd_ipcs,       0}, //call interprocess thread, whatever that means for this system
+    {"kill",        cmd_kill,       1}, //kill [pid] -> terminate process by id
+    {"pkill",       cmd_pkill,      1}, //kill [pname] -> terminate process by name
+    {"pi",          cmd_pi,         1}, //pi on|off -> toggles priority inheritance
+    {"preempt",     cmd_preempt,    1}, // on|off ->toggles preemption
+    {"sched",       cmd_sched,      1}, // prio|rr -> toggles priority or round-robin scheduling
+    {"pidof",       cmd_pidof,      1}, //displays pid be pname
+    {"proc_name",   cmd_bg_runner,  1}, //runs named program in background. we may need to make an entry for each function name?
+    {0,0,0}   //the NULL entry to let us know we are done. dunno if we need it but it is nice to have.
 };
 
 #endif /* CTI_H_ */

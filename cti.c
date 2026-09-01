@@ -16,6 +16,7 @@
 #include "debug.h"          //toAsciiHex()
 #include "clock.h"          //clock init
 #include "wait.h"           //waitMicrosecond()
+#include "rtos_common.h"    //common rtos functions.
 
 //size defs for fields.
 #define MAX_CHARS 80
@@ -32,42 +33,42 @@ void helpMe()
 
 
 //helper commands to run functions
-void cmd_help(USER_DATA data)
+void cmd_help(USER_DATA *data)
 {
     helpMe();
 }
 
-void cmd_rebootie(USER_DATA data)
+void cmd_rebootie(USER_DATA *data)
 {
     rebootie();
 }
-void cmd_ps(USER_DATA data)
+void cmd_ps(USER_DATA *data)
 {
     ps();
 }
-void cmd_ipcs(USER_DATA data)
+void cmd_ipcs(USER_DATA *data)
 {
     ipcs();
 }
-void cmd_kill(USER_DATA data)
+void cmd_kill(USER_DATA *data)
 {
     //get the integer
 
     //then call the function
-    kill(uint32_t pid);
+    kill(getFieldInteger(data,2));
 }
-void cmd_pkill(USER_DATA data)
+void cmd_pkill(USER_DATA *data)
 {
     //get the string
 
     //then call the function
-    pkill(char* proc_name);
+    pkill(pidof(getFieldString(data,2)));
 }
-void cmd_pi(USER_DATA data)
+void cmd_pi(USER_DATA *data)
 {
     bool on;
-    //get the string
-
+    
+    //get the string (on|off)
     if(stringComp("on",getFieldString(data,2)))
     {
         on=1;
@@ -80,21 +81,49 @@ void cmd_pi(USER_DATA data)
     //then call the function
     pi(on);
 }
-void cmd_preempt(USER_DATA data)
+void cmd_preempt(USER_DATA *data)
 {
+    bool on;
+
+    //get the string (on|off)
+    if(stringComp("on",getFieldString(data,2)))
+    {
+        on=1;
+    }
+    else 
+    {
+        on=0;
+    }
+
+    //call the func
+    preempt(on);
+}
+void cmd_sched(USER_DATA *data)
+{
+        bool on;
+
+    //get the string (prio|rr)
+    if(stringComp("prio",getFieldString(data,2)))
+    {
+        on=1;
+    }
+    else 
+    {
+        on=0;
+    }
+
+    //call the func
+    sched(on);
+}
+void cmd_pidof(USER_DATA *data)
+{
+    //get the string and call the func
+    pidof(getFieldString(data,2));
 
 }
-void cmd_sched(USER_DATA data)
+void cmd_bg_runner(USER_DATA *data)
 {
-
-}
-void cmd_pidof(USER_DATA data)
-{
-
-}
-void cmd_bg_runner(USER_DATA data)
-{
-
+    redLed(1);  //red led on.
 }
 
 
@@ -376,46 +405,11 @@ void intToAlpha(uint32_t in, char* buf)
 void doCommands(USER_DATA *data)
 {
     uint8_t i;                      //an iterator
-    while(cti_cmd_list[i] != NULL)  //if there are still commands to check
+    while(cti_cmd_list[i].cmd != 0)  //if there are still commands to check
     {
-        if(isCommand(&data, cti_cmd_list[i].cmd))   //if we match
+        if(isCommand(data, cti_cmd_list[i].cmd,cti_cmd_list[i].minArguments))   //if we match
         {
-            switch(cti_cmd_list[i].special)
-            {
-                case NONE:
-                    cti_cmd_list[i].cmdFunc();  //perform the related command
-                    return;                     //and cut to the chase
-                    break;
-                case UNUM32:
-                    cti_cmd_list[i].cmdFunc(getFieldInteger(&data,2));   //grab the 2nd field as an int to pass to the related command func
-                    return;
-                    break;
-                case ONOFF:
-                    if(getfieldString(&data,2) == "on")
-                    {
-                        cti_cmd_list[i].cmdFunc(1);
-                    }
-                    else if(getfieldString(&data,2) == "off")
-                    {
-                        cti_cmd_list[i].cmdFunc(0);
-                    }
-                    break;
-                case CSTR:
-                    cti_cmd_list[i].cmdFunc(getFieldString(&data,2));
-                    break;  
-                case SCHED:
-                    if(getfieldString(&data,2) == "prio")
-                    {
-                        cti_cmd_list[i].cmdFunc(1);
-                    }
-                    else if(getfieldString(&data,2) == "rr")
-                    {
-                        cti_cmd_list[i].cmdFunc(0);
-                    }
-                    break;
-                default:
-                    break;  //how did we get here?
-            }
+            cti_cmd_list.cmdFunc(i);
         }
         i++;                                //iterate
     }
@@ -423,20 +417,11 @@ void doCommands(USER_DATA *data)
     return;                                         //and get out
 }
 
-//clear the user data
-void clearData(USER_DATA *data)
-{
-    data-fieldCount=0;
-    data.fieldType={};
-    data.fieldPosition={};
-    data.buffer[0]='\0';
-}
 
 // shell loop //
 void shell(void)
 {
     USER_DATA data;
-    clearData(&data);
 
     for(;;){
         if(kbhit())		                        //check if hardware event for keyboard and also our length is OK.

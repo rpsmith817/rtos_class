@@ -38,7 +38,7 @@ void pi(bool on);
 void sched(bool prio_on);
 
 //returns the pid from the process name
-uint32_t pidof(char* name);
+uint32_t pidof(const char name[]);
 
 //runs named process in the background
 void bg_runner(char* name);
