@@ -6,13 +6,16 @@
 #include "debug.h"
 #include "tm4c123gh6pm.h"
 
-//reboot command. see tm4 datasheet p164-165 for details
+//reboot command. see tm4 datasheet p164-165 for details, also REF:https://github.com/yuvadm/tiva-c/blob/master/driverlib/sysctl.c for simultaneous
 void rebootie(void)
 {
-    //step 1 write NVIC_APINT_VECTKEY(0x05FA) to NVIC_APINT_R
-    NVIC_APINT_R |= NVIC_APINT_VECTKEY;
-    //step2 set high sysresetreq.
-    NVIC_APINT_R |= NVIC_APINT_SYSRESETREQ; 
+    //write the key and the reset to the apint register at the same time.
+    NVIC_APINT_R = NVIC_APINT_VECTKEY | NVIC_APINT_SYSRESETREQ;
+
+    //if that doesn't reset it then we should sit around in a fault state. maybe a watchdog will get us.
+    while(1)
+    {
+    }
 }
 
 //empty thing

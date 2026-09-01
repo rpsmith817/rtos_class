@@ -45,7 +45,17 @@ const Cti_Cmd_t cti_cmd_list[] = {
 //eventually this will put out a list of commands so I know what I should be typing for tests.
 void helpMe()
 {
-    putsUart0("ryan is laz\r\n");
+    putsUart0("help           -> get list of commands\r\n");
+    putsUart0("reboot         -> reboot the device\r\n");
+    putsUart0("ps             -> get process status...maybe it returns the status of all running processes?\r\n");
+    putsUart0("ipcs           -> call interprocess thread, whatever that means for this system\r\n");
+    putsUart0("kill [pid]     -> terminate process by id\r\n");
+    putsUart0("pkill [pname]  -> terminate process by name\r\n");
+    putsUart0("pi on|off      -> toggles priority inheritance\r\n");
+    putsUart0("preempt on|off -> toggles preemption\r\n");
+    putsUart0("sched prio|rr  -> toggles priority or round-robin scheduling\r\n");
+    putsUart0("pidof [pname]  -> displays pid be pname\r\n");
+    putsUart0("procname &     -> runs named program in background. we may need to make an entry for each function name?\r\n");
 }
 
 
@@ -166,27 +176,6 @@ bool stringComp(char* str1, char* str2)
         return 0;
     else
         return 1;                   //We did it, they match!
-}
-
-//lightweight (imprecise) power function
-uint16_t myPow(float x, uint16_t n)
-{
-    if (n == 0)
-        return 1.0;
-    int N = n;
-    //    //handle negative exponents. this portion won't be effective with an unsigned int, so it is commented out. why have extra steps?
-    //    if (N < 0) {
-    //        x = 1 / x;
-    //        N = -N;
-    //    }
-    float ans = 1.0;    //we don't have half precision in C, so we gotta use the full 32.
-    while (N > 0) {
-        if (N % 2 == 1)
-            ans *= x;
-        x *= x;
-        N /= 2;
-    }
-    return ans;
 }
 
 // Initialize UART0 on Port A
@@ -449,6 +438,10 @@ void doCommands(USER_DATA *data)
         }
         i++;                                //iterate
     }
+    if(stringComp(getFieldStr(data,1),"&"))
+    {
+        cti_cmd_list[10].cmdFunc(data);
+    }
     putsUart0("Command not found, try again.\r\n"); //if we didn't find the command yell about it
     return;                                         //and get out
 }
@@ -461,6 +454,7 @@ void shell(void)
     for(;;){
         if(kbhit())	                        //check if hardware event for keyboard
         {
+
             getsUart0(&data);       //grab the data
             parseFields(&data);     //parse the fields
             doCommands(&data);    //check if we have a matching command

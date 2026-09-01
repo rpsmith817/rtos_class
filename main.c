@@ -1,6 +1,6 @@
 //small shell by uart
 //targets the tm4c123gh6pm for the ek-tm4c123ghx tiva board
-//relies on professor Losh's clock code.
+//relies on professor Losh's clock and uart code, taken from an embedded I project.
 //author: Ryan Smith
 
 
@@ -27,6 +27,8 @@ void init_hw(void)
 int main(void)
 {
 	init_hw();	//start up all hardware
+//DEBUG:
+	helpMe();
 
 	shell();	//cycle shell forever.
 
