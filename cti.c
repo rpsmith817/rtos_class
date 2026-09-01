@@ -409,7 +409,7 @@ void doCommands(USER_DATA *data)
     {
         if(isCommand(data, cti_cmd_list[i].cmd,cti_cmd_list[i].minArguments))   //if we match
         {
-            cti_cmd_list.cmdFunc(i);
+            cti_cmd_list[i].cmdFunc(data);
         }
         i++;                                //iterate
     }
