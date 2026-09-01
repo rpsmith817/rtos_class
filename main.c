@@ -25,7 +25,7 @@ void init_hw(void)
 //------main
 int main(void)
 {
-	init_hw();		//start up all hardware
+	init_hw();	//start up all hardware
 
 	shell();	//cycle shell forever.
 

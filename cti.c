@@ -236,10 +236,7 @@ void putsUart0(char* str){
 //get a character from uart.
 char getcUart0()
 {
-    while (UART0_FR_R & UART_FR_RXFE)   // wait if uart0 tx fifo empty and also blink a light to show we are waiting for some input.
-    {
-        yield();                        //yield per assignment
-    }
+    while (UART0_FR_R & UART_FR_RXFE);   // wait if uart0 tx fifo empty and also blink a light to show we are waiting for some input.
     return UART0_DR_R & 0xFF;           // pull char from FIFO
 }
 
@@ -255,9 +252,23 @@ bool kbhit()
 //For the printable characters, add each character received to the buffer, increment the character count, and return from the function if the count of characters in the buffer is equal to MAX_CHARS. You may want to make the interface case insensitive. If this behavior is desired, convert upper-case to lower-case or vice-versa to make string comparisons easier.
 void getsUart0(USER_DATA *data)
 {
-    volatile uint8_t i = 0; //an iterator
-    while(i != MAX_CHARS)
+    volatile uint8_t i=0; //an iterator
+    if(i>=MAX_CHARS)
     {
+        i=0;
+    }
+    while(i < MAX_CHARS)
+    {
+        if(i>MAX_CHARS)
+        {
+            data->buffer[MAX_CHARS]='\0';
+            i=0;
+            return;
+        }
+        while(!kbhit())
+        {
+            yield();                        //yield per assignment
+        }
         //go ahead and set the char, if we need to we will discard it after checking.
         data->buffer[i] = getcUart0();
         putcUart0(data->buffer[i]); //print it out for now.
@@ -281,7 +292,7 @@ void getsUart0(USER_DATA *data)
             i++;
         }
     }
-    data->buffer[i+1] = '\0';
+    data->buffer[MAX_CHARS] = '\0';
     return;
 }
 
@@ -446,14 +457,16 @@ void doCommands(USER_DATA *data)
 void shell(void)
 {
     USER_DATA data;
-
     for(;;){
-        if(kbhit())		                        //check if hardware event for keyboard and also our length is OK.
+        if(kbhit())	                        //check if hardware event for keyboard
         {
             getsUart0(&data);       //grab the data
             parseFields(&data);     //parse the fields
             doCommands(&data);    //check if we have a matching command
-
+        }
+        else
+        {
+            yield();
         }
     }
 }
