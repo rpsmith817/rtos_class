@@ -248,7 +248,7 @@ bool kbhit()
 //This is a function to receive characters from the user interface, processing special characters such as backspace and writing the resultant string into the buffer.
 //If the count of characters in the buffer is > 0, process backspace characters (ASCII code 8 or 127) by decrementing the count of received characters, effectively erasing the character from the buffer.
 //If the character received is a line feed (ASCII code 10) or carriage return (ASCII code 13), add a null terminator to the end of the buffer and return.
-//Ignore any other characters that are unprintable (ASCII code < 32 “space”)
+//Ignore any other characters that are unprintable (ASCII code < 32 â€œspaceâ€�)
 //For the printable characters, add each character received to the buffer, increment the character count, and return from the function if the count of characters in the buffer is equal to MAX_CHARS. You may want to make the interface case insensitive. If this behavior is desired, convert upper-case to lower-case or vice-versa to make string comparisons easier.
 void getsUart0(USER_DATA *data)
 {
@@ -297,9 +297,9 @@ void getsUart0(USER_DATA *data)
 }
 
 //This is a function that takes the buffer string from the getsUart0() function and processes the string in-place and returns information about the parsed fields in fieldCount, fieldPosition, and fieldType.
-//Decide on 3 sets of characters – alpha, numeric, and delimiter. Alpha is a-z and A-Z, numeric is 0-9 and optionally hyphen and period (or comma in some localizations), and everything else is a delimiter.
+//Decide on 3 sets of characters â€“ alpha, numeric, and delimiter. Alpha is a-z and A-Z, numeric is 0-9 and optionally hyphen and period (or comma in some localizations), and everything else is a delimiter.
 // Assume that the previous character type is a delimiter when starting to search the buffer.
-// Go through the buffer from left to right, looking for the start of a field (a transition from a delimiter to a alpha or numeric character). For each field (at the transition), record the type of field (alpha or numeric – you can use ‘a’ or ‘n’ if you wish) in the type array, and the offset of the field within the buffer of the field in the position array, and increment the field count. Make the previous character stored equal to the new character and keep moving through the buffer string until the end is found. If the field count equals MAX_FIELDS, return from the function.
+// Go through the buffer from left to right, looking for the start of a field (a transition from a delimiter to a alpha or numeric character). For each field (at the transition), record the type of field (alpha or numeric â€“ you can use â€˜aâ€™ or â€˜nâ€™ if you wish) in the type array, and the offset of the field within the buffer of the field in the position array, and increment the field count. Make the previous character stored equal to the new character and keep moving through the buffer string until the end is found. If the field count equals MAX_FIELDS, return from the function.
 //Before returning, convert all delimiters in the string to NULL characters to aid the getter functions to follow.
 void parseFields(USER_DATA *data)
 {
@@ -425,7 +425,8 @@ void intToAlpha(uint32_t in, char* buf)
     val=in;
     
     //loop through to get the value into the output buffer
-    for(int j=0; j<i; j++)
+    uint8_t j;
+    for(j=0; j<i; j++)
     {
         buf[j] = (val%10) + '0';    //take each decimal value, add the ascii offset.
     }
