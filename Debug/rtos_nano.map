@@ -1,17 +1,17 @@
 ******************************************************************************
                   TI ARM Linker PC v20.2.7                     
 ******************************************************************************
->> Linked Tue Sep  1 19:09:29 2026
+>> Linked Tue Sep  1 19:41:13 2026
 
 OUTPUT FILE NAME:   <rtos_nano.out>
-ENTRY POINT SYMBOL: "_c_int00_noargs"  address: 00000d49
+ENTRY POINT SYMBOL: "_c_int00_noargs"  address: 00000d5d
 
 
 MEMORY CONFIGURATION
 
          name            origin    length      used     unused   attr    fill
 ----------------------  --------  ---------  --------  --------  ----  --------
-  FLASH                 00000000   00040000  00000ed2  0003f12e  R  X
+  FLASH                 00000000   00040000  00000ee6  0003f11a  R  X
   SRAM                  20000000   00008000  00000404  00007bfc  RW X
 
 
@@ -19,11 +19,11 @@ SEGMENT ALLOCATION MAP
 
 run origin  load origin   length   init length attrs members
 ----------  ----------- ---------- ----------- ----- -------
-00000000    00000000    00000ed4   00000ed4    r-x
+00000000    00000000    00000eec   00000eec    r-x
   00000000    00000000    0000026c   0000026c    r-- .intvecs
-  0000026c    0000026c    00000b70   00000b70    r-x .text
-  00000ddc    00000ddc    000000e2   000000e2    r-- .const
-  00000ec0    00000ec0    00000014   00000014    r-- .cinit
+  0000026c    0000026c    00000b84   00000b84    r-x .text
+  00000df0    00000df0    000000e2   000000e2    r-- .const
+  00000ed8    00000ed8    00000014   00000014    r-- .cinit
 20000000    20000000    00000404   00000000    rw-
   20000000    20000000    00000400   00000000    rw- .stack
   20000400    20000400    00000004   00000000    rw- .bss
@@ -37,27 +37,27 @@ section   page    origin      length       input sections
 .intvecs   0    00000000    0000026c     
                   00000000    0000026c     tm4c123gh6pm_startup_ccs.obj (.intvecs)
 
-.text      0    0000026c    00000b70     
+.text      0    0000026c    00000b84     
                   0000026c    00000820     cti.obj (.text)
-                  00000a8c    0000014c     rtos_common.obj (.text)
-                  00000bd8    0000012c     debug.obj (.text)
-                  00000d04    00000044     rtsv7M4_T_le_v4SPD16_eabi.lib : autoinit.c.obj (.text:__TI_auto_init_nobinit_nopinit:__TI_auto_init_nobinit_nopinit)
-                  00000d48    00000034                                   : boot_cortex_m.c.obj (.text:_c_int00_noargs:_c_int00_noargs)
-                  00000d7c    00000020     main.obj (.text)
-                  00000d9c    0000001c     rtsv7M4_T_le_v4SPD16_eabi.lib : copy_zero_init.c.obj (.text:decompress:ZI:__TI_zero_init_nomemset:__TI_zero_init_nomemset)
-                  00000db8    00000010     clock.obj (.text)
-                  00000dc8    0000000c     tm4c123gh6pm_startup_ccs.obj (.text)
-                  00000dd4    00000004     rtsv7M4_T_le_v4SPD16_eabi.lib : pre_init.c.obj (.text:_system_pre_init)
-                  00000dd8    00000004                                   : exit.c.obj (.text:abort:abort)
+                  00000a8c    00000160     rtos_common.obj (.text)
+                  00000bec    0000012c     debug.obj (.text)
+                  00000d18    00000044     rtsv7M4_T_le_v4SPD16_eabi.lib : autoinit.c.obj (.text:__TI_auto_init_nobinit_nopinit:__TI_auto_init_nobinit_nopinit)
+                  00000d5c    00000034                                   : boot_cortex_m.c.obj (.text:_c_int00_noargs:_c_int00_noargs)
+                  00000d90    00000020     main.obj (.text)
+                  00000db0    0000001c     rtsv7M4_T_le_v4SPD16_eabi.lib : copy_zero_init.c.obj (.text:decompress:ZI:__TI_zero_init_nomemset:__TI_zero_init_nomemset)
+                  00000dcc    00000010     clock.obj (.text)
+                  00000ddc    0000000c     tm4c123gh6pm_startup_ccs.obj (.text)
+                  00000de8    00000004     rtsv7M4_T_le_v4SPD16_eabi.lib : pre_init.c.obj (.text:_system_pre_init)
+                  00000dec    00000004                                   : exit.c.obj (.text:abort:abort)
 
-.const     0    00000ddc    000000e2     
-                  00000ddc    00000090     cti.obj (.const:cti_cmd_list)
-                  00000e6c    00000052     cti.obj (.const:.string)
+.const     0    00000df0    000000e2     
+                  00000df0    00000090     cti.obj (.const:cti_cmd_list)
+                  00000e80    00000052     cti.obj (.const:.string)
 
-.cinit     0    00000ec0    00000014     
-                  00000ec0    00000008     (.cinit..bss.load) [load image, compression = zero_init]
-                  00000ec8    00000004     (__TI_handler_table)
-                  00000ecc    00000008     (__TI_cinit_table)
+.cinit     0    00000ed8    00000014     
+                  00000ed8    00000008     (.cinit..bss.load) [load image, compression = zero_init]
+                  00000ee0    00000004     (__TI_handler_table)
+                  00000ee4    00000008     (__TI_cinit_table)
 
 .init_array 
 *          0    00000000    00000000     UNINITIALIZED
@@ -79,12 +79,12 @@ MODULE SUMMARY
     .\
        cti.obj                        2080   226       0      
        tm4c123gh6pm_startup_ccs.obj   12     620       0      
-       rtos_common.obj                332    0         0      
+       rtos_common.obj                352    0         0      
        debug.obj                      300    0         4      
        main.obj                       32     0         0      
        clock.obj                      16     0         0      
     +--+------------------------------+------+---------+---------+
-       Total:                         2772   846       4      
+       Total:                         2792   846       4      
                                                               
     C:\ti\ccs1281\ccs\tools\compiler\ti-cgt-arm_20.2.7.LTS\lib\rtsv7M4_T_le_v4SPD16_eabi.lib
        autoinit.c.obj                 68     0         0      
@@ -98,18 +98,18 @@ MODULE SUMMARY
        Stack:                         0      0         1024   
        Linker Generated:              0      20        0      
     +--+------------------------------+------+---------+---------+
-       Grand Total:                   2928   866       1028   
+       Grand Total:                   2948   866       1028   
 
 
 LINKER GENERATED COPY TABLES
 
-__TI_cinit_table @ 00000ecc records: 1, size/record: 8, table size: 8
-	.bss: load addr=00000ec0, load size=00000008 bytes, run addr=20000400, run size=00000004 bytes, compression=zero_init
+__TI_cinit_table @ 00000ee4 records: 1, size/record: 8, table size: 8
+	.bss: load addr=00000ed8, load size=00000008 bytes, run addr=20000400, run size=00000004 bytes, compression=zero_init
 
 
 LINKER GENERATED HANDLER TABLE
 
-__TI_handler_table @ 00000ec8 records: 1, size/record: 4, table size: 4
+__TI_handler_table @ 00000ee0 records: 1, size/record: 4, table size: 4
 	index: 0, handler: __TI_zero_init
 
 
@@ -117,34 +117,34 @@ GLOBAL SYMBOLS: SORTED ALPHABETICALLY BY Name
 
 address   name                          
 -------   ----                          
-00000dd9  C$$EXIT                       
-00000dc9  ResetISR                      
+00000ded  C$$EXIT                       
+00000ddd  ResetISR                      
 20000400  __STACK_END                   
 00000400  __STACK_SIZE                  
 20000200  __STACK_TOP                   
-00000ecc  __TI_CINIT_Base               
-00000ed4  __TI_CINIT_Limit              
-00000ec8  __TI_Handler_Table_Base       
-00000ecc  __TI_Handler_Table_Limit      
-00000d05  __TI_auto_init_nobinit_nopinit
+00000ee4  __TI_CINIT_Base               
+00000eec  __TI_CINIT_Limit              
+00000ee0  __TI_Handler_Table_Base       
+00000ee4  __TI_Handler_Table_Limit      
+00000d19  __TI_auto_init_nobinit_nopinit
 ffffffff  __TI_pprof_out_hndl           
 ffffffff  __TI_prof_data_size           
 ffffffff  __TI_prof_data_start          
 00000000  __TI_static_base__            
-00000d9d  __TI_zero_init_nomemset       
+00000db1  __TI_zero_init_nomemset       
 ffffffff  __binit__                     
 ffffffff  __c_args__                    
 UNDEFED   __mpu_init                    
 20000000  __stack                       
 20000000  __start___llvm_prf_cnts       
 20000000  __stop___llvm_prf_cnts        
-00000d49  _c_int00_noargs               
+00000d5d  _c_int00_noargs               
 UNDEFED   _system_post_cinit            
-00000dd5  _system_pre_init              
-00000dd9  abort                         
-00000b4b  bg_runner                     
+00000de9  _system_pre_init              
+00000ded  abort                         
+00000b53  bg_runner                     
 ffffffff  binit                         
-00000c95  blueLED                       
+00000ca9  blueLED                       
 0000035f  cmd_bg_runner                 
 00000277  cmd_helpMe                    
 00000295  cmd_ipcs                      
@@ -156,47 +156,47 @@ ffffffff  binit
 0000028b  cmd_ps                        
 00000281  cmd_rebootie                  
 0000031f  cmd_sched                     
-00000ddc  cti_cmd_list                  
-00000c57  currentTime                   
-00000c5d  deltaTime                     
+00000df0  cti_cmd_list                  
+00000c6b  currentTime                   
+00000c71  deltaTime                     
 000009cf  doCommands                    
 00000000  g_pfnVectors                  
 00000871  getFieldInteger               
 00000827  getFieldString                
 00000533  getcUart0                     
 00000577  getsUart0                     
-00000cbd  greenLED                      
+00000cd1  greenLED                      
 0000026d  helpMe                        
-00000db9  initSystemClockTo40Mhz        
+00000dcd  initSystemClockTo40Mhz        
 00000471  initUart0                     
-00000c6f  init_LEDs                     
-00000cd1  init_debug                    
-00000d7d  init_hw                       
-00000c3b  init_sysTick                  
+00000c83  init_LEDs                     
+00000ce5  init_debug                    
+00000d91  init_hw                       
+00000c4f  init_sysTick                  
 0000095b  intToAlpha                    
 00000aad  ipcs                          
 00000933  isCommand                     
 00000547  kbhit                         
 00000ab7  kill                          
-00000d8d  main                          
+00000da1  main                          
 000003f5  myPow                         
 000006a5  parseFields                   
-00000b01  pi                            
-00000b39  pidof                         
-00000ad1  pkill                         
-00000ae5  preempt                       
+00000b07  pi                            
+00000b3f  pidof                         
+00000ad7  pkill                         
+00000aeb  preempt                       
 00000aa3  ps                            
 000004e5  putcUart0                     
 00000507  putsUart0                     
 00000a8d  rebootie                      
-00000ca9  redLED                        
-00000b1d  sched                         
+00000cbd  redLED                        
+00000b23  sched                         
 00000a39  shell                         
 0000039d  stringComp                    
 0000036b  strlength                     
 20000400  systemTicker                  
-00000bd9  toAsciiHex                    
-00000d9b  yield                         
+00000bed  toAsciiHex                    
+00000daf  yield                         
 
 
 GLOBAL SYMBOLS: SORTED BY Symbol Address 
@@ -238,37 +238,37 @@ address   name
 00000aa3  ps                            
 00000aad  ipcs                          
 00000ab7  kill                          
-00000ad1  pkill                         
-00000ae5  preempt                       
-00000b01  pi                            
-00000b1d  sched                         
-00000b39  pidof                         
-00000b4b  bg_runner                     
-00000bd9  toAsciiHex                    
-00000c3b  init_sysTick                  
-00000c57  currentTime                   
-00000c5d  deltaTime                     
-00000c6f  init_LEDs                     
-00000c95  blueLED                       
-00000ca9  redLED                        
-00000cbd  greenLED                      
-00000cd1  init_debug                    
-00000d05  __TI_auto_init_nobinit_nopinit
-00000d49  _c_int00_noargs               
-00000d7d  init_hw                       
-00000d8d  main                          
-00000d9b  yield                         
-00000d9d  __TI_zero_init_nomemset       
-00000db9  initSystemClockTo40Mhz        
-00000dc9  ResetISR                      
-00000dd5  _system_pre_init              
-00000dd9  C$$EXIT                       
-00000dd9  abort                         
-00000ddc  cti_cmd_list                  
-00000ec8  __TI_Handler_Table_Base       
-00000ecc  __TI_CINIT_Base               
-00000ecc  __TI_Handler_Table_Limit      
-00000ed4  __TI_CINIT_Limit              
+00000ad7  pkill                         
+00000aeb  preempt                       
+00000b07  pi                            
+00000b23  sched                         
+00000b3f  pidof                         
+00000b53  bg_runner                     
+00000bed  toAsciiHex                    
+00000c4f  init_sysTick                  
+00000c6b  currentTime                   
+00000c71  deltaTime                     
+00000c83  init_LEDs                     
+00000ca9  blueLED                       
+00000cbd  redLED                        
+00000cd1  greenLED                      
+00000ce5  init_debug                    
+00000d19  __TI_auto_init_nobinit_nopinit
+00000d5d  _c_int00_noargs               
+00000d91  init_hw                       
+00000da1  main                          
+00000daf  yield                         
+00000db1  __TI_zero_init_nomemset       
+00000dcd  initSystemClockTo40Mhz        
+00000ddd  ResetISR                      
+00000de9  _system_pre_init              
+00000ded  C$$EXIT                       
+00000ded  abort                         
+00000df0  cti_cmd_list                  
+00000ee0  __TI_Handler_Table_Base       
+00000ee4  __TI_CINIT_Base               
+00000ee4  __TI_Handler_Table_Limit      
+00000eec  __TI_CINIT_Limit              
 20000000  __stack                       
 20000000  __start___llvm_prf_cnts       
 20000000  __stop___llvm_prf_cnts        

@@ -36,6 +36,7 @@ void kill(uint32_t pid)
     char buf[MAX_CHARS];
     intToAlpha(pid, (char*)&buf);
     putsUart0((char*)&buf);
+    putsUart0(" killed");
 }
 
 //kills process by name
@@ -88,8 +89,9 @@ void sched(bool prio_on)
 //returns the pid from the process name
 uint32_t pidof(const char name[])
 {
-    putsUart0(name);
+    putsUart0((char*)name);
     putsUart0(" launched\r\n");
+    return 123456789;
 }
 
 //runs named process in the background
