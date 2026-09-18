@@ -23,12 +23,17 @@ void init_hw(void)
 	init_LEDs();
 }
 
+extern void asp_bit_asm();
+
 //------main
 int main(void)
 {
 	init_hw();	//start up all hardware
+	void setpsp(uint32_t * p);
+	asp_bit_asm();  //set the ASP bit,
+
 //DEBUG:
-	helpMe();
+//	helpMe();
 
 	shell();	//cycle shell forever.
 
