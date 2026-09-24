@@ -401,7 +401,10 @@ bool isCommand(USER_DATA *data, const char strCommand[], uint8_t minArguments)
 void intToAlpha(uint32_t in, char* buf)
 {
     uint32_t val=in;        //set val to input so we can manipulate it without worry
+    uint32_t intermediate=0;
     uint8_t len=0;            //an iterator to hold some length
+    uint8_t j;
+    int16_t i;
 
     //shortcut if we are 0.
     if(in==0)
@@ -417,12 +420,23 @@ void intToAlpha(uint32_t in, char* buf)
         val /= 10;
         len++;
     }    
+
+
+    //bounds. If len extends beyond 10 digits then something has gone wrong and we should yell about it.
+    if(len>11)
+    {
+        for(i=0;i<10;i++)
+        {
+            buf[i]='!';
+        }
+        buf[10]='\0';
+        return;
+    }
+
     
+    //otherwise we can continue.
     val=1;
-    uint32_t intermediate=0;
     //loop through to get the value into the output buffer
-    uint8_t j;
-    int16_t i;
     for(i=len-1;i>-1;i--)
     {
         for(j=0; j<i; j++)
