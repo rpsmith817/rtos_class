@@ -24,6 +24,11 @@ setASPBit:
 		ISB				;
 		BX	LR			;
 
+;;;;;;;;;;;;;;;;;;;;;;;;;
+.def setpsp
+
+setpsp:
+		MSR PSP, R0		;	set the psp to what is loaded in R0 maybe?
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;
 .def getR0
@@ -47,6 +52,7 @@ getR2:
 .def getR3
 getR3:
 		MOV R0,R3
+		BX LR
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;

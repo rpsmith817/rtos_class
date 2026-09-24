@@ -105,16 +105,3 @@ void bg_runner(char* name)
     redLED(1);
 }
 
-/*
-    required, from assignment doc:
-    reboot          - reboots microcontroller
-    ps              - display process (thread) status. for now calls ps() which outputs "PS Called"
-    ipcs            - Displays the inter-process (thread) status. for now calls ipcs() which outputs "IPCS Called"
-    kill pid        - Kills the process (thread) associated with the matching pid. For now, calls kill(uint32_t pid) which displays the text "[pid] killed"
-    pkill proc_name - Kills the thread based on the process name
-    pi on|off       - turns priority inheritance on or off. for now calls pi(bool on) that displays "pi on" or "pi off"
-    preempt on|off  - turns preemption on or off. for now it calls preempt(bool on) that displays "preempt on" or "preempt off"
-    sched prio|rr   - Selected priority or round-robin shceduling. for now calls sched(bool prio_on) that displays "sched prio" or "sched rr"
-    pidof proc_name - displays the pid of the process (thread) for now calls pidof(const char name[]) that displays "proc_name launched"
-    proc_name &     - runs the selected program in the background. for now turns on the red LED.
-*/
