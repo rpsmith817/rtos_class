@@ -12,12 +12,9 @@ extern uint32_t psp;
 void setpsp(uint32_t * p);
 
 //functions defines in asp_bit.s
-extern void setASPBit(void);
-extern uint32_t getR0(void);
-extern uint32_t getR1(void);
-extern uint32_t getR2(void);
-extern uint32_t getR3(void);
-extern uint32_t getR7(void);
+extern void setASPBit(void);            //set the ASP bit, don't call unless you have already set the psp
+extern void getpsp(uint32_t *p);        //return the psp address
+extern void getmsp(uint32_t *p);        //return mps address
 
 
 #endif

@@ -16,6 +16,9 @@
 #define MAX_FIELDS 5
 
 
+// declare a pid here so it can be manipulated when we need it later.
+extern uint32_t pid;
+
 //stores user data
 typedef struct _USER_DATA {
     char buffer[MAX_CHARS+1];               //raw input until parsed, then it contains fields and NULLs.
@@ -89,7 +92,7 @@ uint32_t getFieldInteger(USER_DATA *data, uint8_t fieldNumber);
 // This function returns true if the command matches the first field and the number of arguments (excluding the command field) is greater than or equal to the requested number of minimum arguments.
 bool isCommand(USER_DATA *data, const char strCommand[], uint8_t minArguments);
 
-//convert from an integer into an ascii output.
+//convert from an integer into an ascii output. needs a string of len=11 or less.
 void intToAlpha(uint32_t in, char* buf);
 
 //compare the input to the list of commands, then run the command if we match

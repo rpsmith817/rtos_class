@@ -4,6 +4,18 @@
 #ifndef INTERRUPTS_H
 #define INTERRUPTS_H
 
+
+typedef struct _memdump{
+    uint32_t * ptr_psp;
+    uint32_t* ptr_msp;
+    uint32_t pid;
+    uint32_t fault_flags;
+} memdump;
+
+
+//get registers and put them into a struct for function use. spit out the values that are commonly spat out while we are at it.
+memdump dumpMem(void);
+
 //hardfault
 void HardFaultHandler(void);
 
