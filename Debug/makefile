@@ -8,10 +8,14 @@ GEN_OPTS__FLAG :=
 GEN_CMDS__FLAG := 
 
 ORDERED_OBJS += \
+"./asp_bit.obj" \
 "./clock.obj" \
 "./cti.obj" \
 "./debug.obj" \
+"./interruptor.obj" \
+"./interrupts.obj" \
 "./main.obj" \
+"./memory.obj" \
 "./rtos_common.obj" \
 "./tm4c123gh6pm_startup_ccs.obj" \
 "./wait.obj" \
@@ -145,8 +149,9 @@ rtos_class.out: $(OBJS) $(CMD_SRCS) $(GEN_CMDS)
 # Other Targets
 clean:
 	-$(RM) $(EXE_OUTPUTS__QUOTED)
-	-$(RM) "clock.obj" "cti.obj" "debug.obj" "main.obj" "rtos_common.obj" "tm4c123gh6pm_startup_ccs.obj" "wait.obj" 
-	-$(RM) "clock.d" "cti.d" "debug.d" "main.d" "rtos_common.d" "tm4c123gh6pm_startup_ccs.d" "wait.d" 
+	-$(RM) "asp_bit.obj" "clock.obj" "cti.obj" "debug.obj" "interruptor.obj" "interrupts.obj" "main.obj" "memory.obj" "rtos_common.obj" "tm4c123gh6pm_startup_ccs.obj" "wait.obj" 
+	-$(RM) "clock.d" "cti.d" "debug.d" "interruptor.d" "interrupts.d" "main.d" "memory.d" "rtos_common.d" "tm4c123gh6pm_startup_ccs.d" "wait.d" 
+	-$(RM) "asp_bit.d" 
 	-@echo 'Finished clean'
 	-@echo ' '
 

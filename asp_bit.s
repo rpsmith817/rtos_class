@@ -10,14 +10,20 @@
 ;
 ;
 
+	.def setASPBit
+	.def setpsp
+	.def getpsp
+	.def getmsp
+
+
+
+
 .thumb
 .text
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;
 ;	set the asp bit and then send the isb then escape.
-.def setASPBit
-
 setASPBit:
 		MRS	R0, CONTROL	;
 		ORR	R0, R0, #2	;
@@ -28,8 +34,6 @@ setASPBit:
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;
 ;	set the psp to what is loaded in R0 maybe?
-.def setpsp
-
 setpsp:
 		MSR PSP, R0		;
 		BX LR
@@ -37,17 +41,14 @@ setpsp:
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;
 ;	Grab the psp address
-.def getpsp
-
 getpsp:					;
-		MOV R0, PSP		;
+		MRS R0, PSP		;
 		BX 	LR			;
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;
 ;	Grab the msp address
-.def getmsp
 
 getmsp:					;
-		MOV R0, MSP		;
+		MRS R0, MSP		;
 		BX LR			;
 

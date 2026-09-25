@@ -13,9 +13,10 @@
 #include "rtos_common.h"    //rtos common functions
 #include "debug.h"          //leds and other helpers
 #include "asp_bit.h"        //some assembly functions like setASPBit(), also contains psp
+#include "memory.h"         //mpu and other memory functions
 
 
-//global define for the psp.
+//global define for the psp, but global defines are dirty and wrong. except this one.
 uint32_t psp= 0x20008000;
 
 //all hardware inits
@@ -26,6 +27,15 @@ void init_hw(void)
 	init_LEDs();
 }
 
+//loop for the PSP area.
+ecscape()
+{
+
+
+    while(1);   //we live here now.
+    return;     //we will never return.
+}
+
 //main
 int main(void)
 {
@@ -33,12 +43,13 @@ int main(void)
 	setpsp(psp);    //set the psp bit to whatever it should be.
 	setASPBit();    //set the ASP bit so that we get into program stack
 
+	ecscape();      //go live in PSP land.
+
 //DEBUG:
-//	helpMe();       //debug command to list out cti functions.
+//    helpMe();       //debug command to list out cti functions.
 
-	shell();	//cycle shell forever.
+//    shell();    //cycle shell forever.
 
-	return 0;	//never gonna get here
 }
 
 

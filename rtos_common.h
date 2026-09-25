@@ -10,10 +10,6 @@
 
 #include "cti.h"
 
-
-//convert a hex value into an ascii string starting at a passed pointer. the array must be at least 9 long elements long.
-void toAsciiHex(char* buff, uint32_t Val);
-
 void yield(void);
 
 //for reboot.

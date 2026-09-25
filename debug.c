@@ -14,7 +14,7 @@
 
 
 //function to take 32bit val and parse out to ascii version of hex string.
-char* toAsciiHex(char* buff, uint32_t Val){
+void toAsciiHex(char* buff, uint32_t Val){
     int i;  //we leave this signed due to comparison to 0 compiler warning and occasional weird overflow/wraparound error.
     uint8_t Hexbits=0;
     for(i=7;i>=0;i--){
@@ -28,7 +28,7 @@ char* toAsciiHex(char* buff, uint32_t Val){
 
     buff[8] = '\0';
 
-    return buff;
+    return;
 }
 
 

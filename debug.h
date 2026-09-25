@@ -15,7 +15,7 @@
 
 //function to take 32bit val and parse out to ascii version of hex string.
 //the given string's index size must be 9 or greater.
-char* toAsciiHex(char* buff, uint32_t Val);
+void toAsciiHex(char* buff, uint32_t Val);
 
 //init sysTick and LED controls for debugging purposes.
 void init_debug();

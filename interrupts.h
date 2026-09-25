@@ -4,10 +4,12 @@
 #ifndef INTERRUPTS_H
 #define INTERRUPTS_H
 
-#define FAULT_FLAG_MASK 0x030FBFBB
-#define DERR_IERR_FLAG_MASK 0x3
 
 #include "tm4c123gh6pm.h"
+
+#define FAULT_FLAG_MASK 0x030FBFBB
+#define DERR_IERR_FLAG_MASK 0x3
+#define MFAULT_MASK 0xBB
 
 typedef struct _memdump{
     uint32_t * ptr_psp;

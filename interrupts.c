@@ -3,7 +3,8 @@
 
 #include "interrupts.h"
 #include "asp_bit.h"
-#include "rtos_common"
+#include "rtos_common.h"
+#include "debug.h"
 #include "cti.h"
 
 //dump memory
@@ -23,8 +24,18 @@ memdump dumpmem(char* str, memdump* m)
     putsUart0(*str);
     putsUart0("\r\n");
 
-    putsUart0("Fault Flags: ");
-    toAsciiHex(*str,(m->fault_flags));
+    putsUart0("R3: ");
+    toAsciiHex(*str,m->ptr_psp[3]); //convert R3 to hex.
+    putsUart0(*str);
+    putsUart0("\r\n");
+
+    putsUart0("R3: ");
+    toAsciiHex(*str,m->ptr_psp[3]); //convert R3 to hex.
+    putsUart0(*str);
+    putsUart0("\r\n");
+
+    putsUart0("R3: ");
+    toAsciiHex(*str,m->ptr_psp[3]); //convert R3 to hex.
     putsUart0(*str);
     putsUart0("\r\n");
 
@@ -74,6 +85,10 @@ void HardFaultHandler(void)
 
     dumpmem(*str, m);   //dump the memory
 
+    putsUart0("Fault Flags: ");
+    toAsciiHex(*str,(m->fault_flags));
+    putsUart0(*str);
+    putsUart0("\r\n");
 
     while(1){}
 }
@@ -86,6 +101,26 @@ by the OS. Or now, just use a variable named pid. Also, provide the value of the
 flags (in hex). Also, print the offending instruction and data addresses. Display the process stack dump
 (xPSR, PC, LR, R0-3, R12. Clear the MPU fault pending bit and trigger a pendsv ISR call.
 */
+    char str[11];
+
+    memdump *m;
+    m->pid = 456;
+
+    putsUart0("MPU fault in thread ");
+    intToAlpha(pid,*str);
+    putsUart0(*str);
+    putsUart0("\r\n");
+
+    dumpmem(*str,m);    //dump the memory.
+
+    m->fault_flags = NVIC_FAULT_ADDR_R & MFAULT_MASK;
+
+    putsUart0("Fault Flags: ");
+    toAsciiHex(*str,(m->fault_flags));
+    putsUart0(*str);
+    putsUart0("\r\n");
+
+
     while(1){}
 }
 
@@ -96,7 +131,8 @@ void BusFaultHandler(void)
 by the OS. Or now, just use a variable named pid.
 */
     putsUart0("Bus fault in thread ");
-    putsUart0(toAsciiHex(pid));
+    intToAlpha(pid,*str);
+    putsUart0(*str);
     putsUart0("\r\n");
 
 
@@ -110,7 +146,8 @@ void UsageFaultHandler(void)
 provided by the OS. Or now, just use a variable named pid.
 */
     putsUart0("Usage fault in thread ");
-    putsUart0(toAsciiHex(pid));
+    intToAlpha(pid,*str);
+    putsUart0(*str);
     putsUart0("\r\n");
 
 
@@ -127,11 +164,15 @@ clear them and display the message “memory protection called this handler”.
     uint32_t val;
 
     putsUart0("Pendsv in thread ");
-    putsUart0(toAsciiHex(pid));
+    putsUart0(intToAlpha(pid));
     putsUart0("\r\n");
 
-    val = DERR_IERR_FLAG_MASK
+    val = NVIC_FAULT_ADDR_R & DERR_IERR_FLAG_MASK;
 
+    if(val)
+    {
+        putsUart0("memory protection called this handler\r\n");
+    }
 
     while(1){}
 }
