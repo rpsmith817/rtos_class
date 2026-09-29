@@ -13,7 +13,7 @@
 #include "tm4c123gh6pm.h"   //hardware register and mask macros
 
 #include "cti.h"            //shell
-#include "debug.h"          //redLED
+//#include "debug.h"          //redLED
 #include "clock.h"          //clock init
 #include "wait.h"           //waitMicrosecond()
 #include "rtos_common.h"    //common rtos functions.
@@ -150,7 +150,7 @@ void cmd_pidof(USER_DATA *data)
 }
 void cmd_bg_runner(USER_DATA *data)
 {
-    redLED(1);  //red led on.
+//    redLED(1);  //red led on.relies on old version of debug.c/debug.h
 }
 
 

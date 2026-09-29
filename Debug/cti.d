@@ -14,7 +14,6 @@ cti.obj: /home/rps/ti/ccs1281/ccs/tools/compiler/ti-cgt-arm_20.2.7.LTS/include/s
 cti.obj: /home/rps/ti/ccs1281/ccs/tools/compiler/ti-cgt-arm_20.2.7.LTS/include/stdbool.h
 cti.obj: ../tm4c123gh6pm.h
 cti.obj: ../cti.h
-cti.obj: ../debug.h
 cti.obj: ../clock.h
 cti.obj: ../wait.h
 cti.obj: ../rtos_common.h
@@ -46,8 +45,6 @@ cti.obj: ../rtos_common.h
 ../tm4c123gh6pm.h:
 
 ../cti.h:
-
-../debug.h:
 
 ../clock.h:
 

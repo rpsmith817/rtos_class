@@ -14,7 +14,6 @@ rtos_common.obj: /home/rps/ti/ccs1281/ccs/tools/compiler/ti-cgt-arm_20.2.7.LTS/i
 rtos_common.obj: /home/rps/ti/ccs1281/ccs/tools/compiler/ti-cgt-arm_20.2.7.LTS/include/machine/_stdint.h
 rtos_common.obj: /home/rps/ti/ccs1281/ccs/tools/compiler/ti-cgt-arm_20.2.7.LTS/include/sys/_stdint.h
 rtos_common.obj: ../cti.h
-rtos_common.obj: ../debug.h
 rtos_common.obj: ../tm4c123gh6pm.h
 
 ../rtos_common.c:
@@ -44,8 +43,6 @@ rtos_common.obj: ../tm4c123gh6pm.h
 /home/rps/ti/ccs1281/ccs/tools/compiler/ti-cgt-arm_20.2.7.LTS/include/sys/_stdint.h:
 
 ../cti.h:
-
-../debug.h:
 
 ../tm4c123gh6pm.h:
 

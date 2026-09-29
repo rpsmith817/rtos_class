@@ -19,6 +19,7 @@ main.obj: ../rtos_common.h
 main.obj: ../debug.h
 main.obj: ../asp_bit.h
 main.obj: ../memory.h
+main.obj: ../gpio.h
 
 ../main.c:
 
@@ -57,4 +58,6 @@ main.obj: ../memory.h
 ../asp_bit.h:
 
 ../memory.h:
+
+../gpio.h:
 

@@ -3,7 +3,7 @@
 // date: 8/24/2026
 
 #include "rtos_common.h"
-#include "debug.h"
+//#include "debug.h"
 #include "tm4c123gh6pm.h"
 
 
@@ -104,6 +104,6 @@ uint32_t pidof(const char name[])
 //runs named process in the background
 void bg_runner(char* name)
 {
-    redLED(1);
+//    redLED(1);
 }
 

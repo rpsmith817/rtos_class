@@ -2,6 +2,7 @@
 "./clock.obj"
 "./cti.obj"
 "./debug.obj"
+"./gpio.obj"
 "./interruptor.obj"
 "./interrupts.obj"
 "./main.obj"

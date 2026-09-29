@@ -1,7 +1,6 @@
 # FIXED
 
 interrupts.obj: ../interrupts.c
-interrupts.obj: ../interrupts.h
 interrupts.obj: /home/rps/ti/ccs1281/ccs/tools/compiler/ti-cgt-arm_20.2.7.LTS/include/stdint.h
 interrupts.obj: /home/rps/ti/ccs1281/ccs/tools/compiler/ti-cgt-arm_20.2.7.LTS/include/_ti_config.h
 interrupts.obj: /home/rps/ti/ccs1281/ccs/tools/compiler/ti-cgt-arm_20.2.7.LTS/include/linkage.h
@@ -12,16 +11,15 @@ interrupts.obj: /home/rps/ti/ccs1281/ccs/tools/compiler/ti-cgt-arm_20.2.7.LTS/in
 interrupts.obj: /home/rps/ti/ccs1281/ccs/tools/compiler/ti-cgt-arm_20.2.7.LTS/include/machine/_types.h
 interrupts.obj: /home/rps/ti/ccs1281/ccs/tools/compiler/ti-cgt-arm_20.2.7.LTS/include/machine/_stdint.h
 interrupts.obj: /home/rps/ti/ccs1281/ccs/tools/compiler/ti-cgt-arm_20.2.7.LTS/include/sys/_stdint.h
+interrupts.obj: ../interrupts.h
 interrupts.obj: ../tm4c123gh6pm.h
 interrupts.obj: ../asp_bit.h
-interrupts.obj: ../rtos_common.h
+interrupts.obj: ../debug.h
 interrupts.obj: /home/rps/ti/ccs1281/ccs/tools/compiler/ti-cgt-arm_20.2.7.LTS/include/stdbool.h
 interrupts.obj: ../cti.h
-interrupts.obj: ../debug.h
+interrupts.obj: ../gpio.h
 
 ../interrupts.c:
-
-../interrupts.h:
 
 /home/rps/ti/ccs1281/ccs/tools/compiler/ti-cgt-arm_20.2.7.LTS/include/stdint.h:
 
@@ -43,15 +41,17 @@ interrupts.obj: ../debug.h
 
 /home/rps/ti/ccs1281/ccs/tools/compiler/ti-cgt-arm_20.2.7.LTS/include/sys/_stdint.h:
 
+../interrupts.h:
+
 ../tm4c123gh6pm.h:
 
 ../asp_bit.h:
 
-../rtos_common.h:
+../debug.h:
 
 /home/rps/ti/ccs1281/ccs/tools/compiler/ti-cgt-arm_20.2.7.LTS/include/stdbool.h:
 
 ../cti.h:
 
-../debug.h:
+../gpio.h:
 

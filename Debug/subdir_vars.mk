@@ -13,6 +13,7 @@ C_SRCS += \
 ../clock.c \
 ../cti.c \
 ../debug.c \
+../gpio.c \
 ../interruptor.c \
 ../interrupts.c \
 ../main.c \
@@ -28,6 +29,7 @@ C_DEPS += \
 ./clock.d \
 ./cti.d \
 ./debug.d \
+./gpio.d \
 ./interruptor.d \
 ./interrupts.d \
 ./main.d \
@@ -41,6 +43,7 @@ OBJS += \
 ./clock.obj \
 ./cti.obj \
 ./debug.obj \
+./gpio.obj \
 ./interruptor.obj \
 ./interrupts.obj \
 ./main.obj \
@@ -54,6 +57,7 @@ OBJS__QUOTED += \
 "clock.obj" \
 "cti.obj" \
 "debug.obj" \
+"gpio.obj" \
 "interruptor.obj" \
 "interrupts.obj" \
 "main.obj" \
@@ -66,6 +70,7 @@ C_DEPS__QUOTED += \
 "clock.d" \
 "cti.d" \
 "debug.d" \
+"gpio.d" \
 "interruptor.d" \
 "interrupts.d" \
 "main.d" \
@@ -84,6 +89,7 @@ C_SRCS__QUOTED += \
 "../clock.c" \
 "../cti.c" \
 "../debug.c" \
+"../gpio.c" \
 "../interruptor.c" \
 "../interrupts.c" \
 "../main.c" \

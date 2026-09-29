@@ -1,7 +1,14 @@
 //sets the psp, sets the ASP bit, and tests several interrupts for memory dump ability.
 //targets the tm4c123gh6pm for the ek-tm4c123ghx tiva board
 //relies on professor Losh's clock and uart code, taken from an embedded I project.
+//  also on gpio control code from iot. Probably from some other assignments too.
 //author: Ryan Smith 9/22/2026
+
+
+//pin targets:
+//UART0 -> PA0+PA1
+//BTNS -> PC4, PC5, PC6, PC7, PD6, PD7, PF4
+//LEDS -> PF1, PE3, PE2, PE1
 
 
 //includes
@@ -14,7 +21,7 @@
 #include "debug.h"          //leds and other helpers
 #include "asp_bit.h"        //some assembly functions like setASPBit(), also contains psp
 #include "memory.h"         //mpu and other memory functions
-
+#include "gpio.h"           //gpio control code from losh from iot, for buttons and leds.
 
 //global define for the psp, but global defines are dirty and wrong. except this one.
 uint32_t psp= 0x20008000;
@@ -24,13 +31,42 @@ void init_hw(void)
 {
 	initSystemClockTo40Mhz();
 	initUart0();
-	init_LEDs();
+
+//setup for buttons etc, code courtesy of losh from iot.
+	//enable required ports
+	enablePort(PORTC);
+	enablePort(PORTD);
+	enablePort(PORTE);
+	enablePort(PORTF);
+
+	//setup buttons
+	selectPinDigitalInput(PORTC,4);
+    enablePinPullup(PORTC,4);
+	selectPinDigitalInput(PORTC,5);
+    enablePinPullup(PORTC,5);
+	selectPinDigitalInput(PORTC,6);
+    enablePinPullup(PORTC,6);
+	selectPinDigitalInput(PORTC,7);
+    enablePinPullup(PORTC,7);
+	selectPinDigitalInput(PORTD,6);
+    enablePinPullup(PORTD,6);
+	selectPinDigitalInput(PORTD,7);
+    enablePinPullup(PORTD,7);
+	selectPinDigitalInput(PORTF,4);
+    enablePinPullup(PORTF,4);
+
+    //setup LEDs
+    selectPinPushPullOutput(PORTF,1);
+    selectPinPushPullOutput(PORTE,3);
+    selectPinPushPullOutput(PORTE,2);
+    selectPinPushPullOutput(PORTE,1);
+
 }
 
 //loop for the PSP area.
 ecscape()
 {
-
+    faultloop();    //perform tests of interrupts
 
     while(1);   //we live here now.
     return;     //we will never return.

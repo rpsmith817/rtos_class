@@ -1,11 +1,13 @@
 //holds interrupts handlers for the rtos
 //author ryan smith
 
+#include <stdint.h>
 #include "interrupts.h"
 #include "asp_bit.h"
-#include "rtos_common.h"
-#include "debug.h"
-#include "cti.h"
+
+#include "debug.h"          //toasciihex
+#include "cti.h"            //terminal
+#include "gpio.h"           //leds
 
 uint32_t pid = 0x12341234;  //0d305402420
 
@@ -162,6 +164,16 @@ provided by the OS. Or now, just use a variable named pid.
     putsUart0((char*)str);
     putsUart0("\r\n");
 
+    if(makehardfault)
+    {
+        str[0]=1;
+        str[1]=2;
+        while(1)
+        {
+            str[0]-=1;
+            str[1] /= str[0];
+        }
+    }
 
     while(1){}
 }

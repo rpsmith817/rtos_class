@@ -22,3 +22,7 @@ void cause_usagefault(void);
 
 //pendsv not fault
 void cause_pendsv(void);
+
+
+//loop for checking buttons and causing faults
+void faultloop(void);

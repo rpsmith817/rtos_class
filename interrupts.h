@@ -12,6 +12,8 @@
 #define MFAULT_MASK 0xBB
 #define BUFFER_STR_SIZE 11
 
+extern uint8_t makehardfault;
+
 typedef struct _memdump{
     uint32_t * ptr_psp;
     uint32_t* ptr_msp;
