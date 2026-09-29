@@ -4,12 +4,13 @@
 #ifndef INTERRUPTS_H
 #define INTERRUPTS_H
 
-
+#include <stdint.h>
 #include "tm4c123gh6pm.h"
 
 #define FAULT_FLAG_MASK 0x030FBFBB
 #define DERR_IERR_FLAG_MASK 0x3
 #define MFAULT_MASK 0xBB
+#define BUFFER_STR_SIZE 11
 
 typedef struct _memdump{
     uint32_t * ptr_psp;
@@ -20,7 +21,7 @@ typedef struct _memdump{
 
 
 //get registers and put them into a struct for function use. spit out the values that are commonly spat out while we are at it.
-memdump dumpMem(void);
+void dumpMem(char* str, memdump* m);
 
 //hardfault
 void HardFaultHandler(void);
