@@ -3,10 +3,7 @@
 // date: 8/24/2026
 
 #include "rtos_common.h"
-//#include "debug.h"
 #include "tm4c123gh6pm.h"
-
-
 
 //reboot command. see tm4 datasheet p164-165 for details, also REF:https://github.com/yuvadm/tiva-c/blob/master/driverlib/sysctl.c for simultaneous
 void rebootie(void)

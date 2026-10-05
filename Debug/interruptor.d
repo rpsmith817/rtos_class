@@ -12,9 +12,11 @@ interruptor.obj: /home/rps/ti/ccs1281/ccs/tools/compiler/ti-cgt-arm_20.2.7.LTS/i
 interruptor.obj: /home/rps/ti/ccs1281/ccs/tools/compiler/ti-cgt-arm_20.2.7.LTS/include/machine/_stdint.h
 interruptor.obj: /home/rps/ti/ccs1281/ccs/tools/compiler/ti-cgt-arm_20.2.7.LTS/include/sys/_stdint.h
 interruptor.obj: /home/rps/ti/ccs1281/ccs/tools/compiler/ti-cgt-arm_20.2.7.LTS/include/stdbool.h
+interruptor.obj: ../interruptor.h
 interruptor.obj: ../tm4c123gh6pm.h
 interruptor.obj: ../gpio.h
 interruptor.obj: ../interrupts.h
+interruptor.obj: ../wait.h
 
 ../interruptor.c:
 
@@ -40,9 +42,13 @@ interruptor.obj: ../interrupts.h
 
 /home/rps/ti/ccs1281/ccs/tools/compiler/ti-cgt-arm_20.2.7.LTS/include/stdbool.h:
 
+../interruptor.h:
+
 ../tm4c123gh6pm.h:
 
 ../gpio.h:
 
 ../interrupts.h:
+
+../wait.h:
 

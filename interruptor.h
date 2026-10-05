@@ -1,8 +1,6 @@
 //interrupts things
 //author Ryan Smith 9/22/2026
 
-#include "interruptor.h"
-
 
 //hardfault
 void cause_hardfault(void);

@@ -18,6 +18,7 @@ interrupts.obj: ../debug.h
 interrupts.obj: /home/rps/ti/ccs1281/ccs/tools/compiler/ti-cgt-arm_20.2.7.LTS/include/stdbool.h
 interrupts.obj: ../cti.h
 interrupts.obj: ../gpio.h
+interrupts.obj: ../wait.h
 
 ../interrupts.c:
 
@@ -54,4 +55,6 @@ interrupts.obj: ../gpio.h
 ../cti.h:
 
 ../gpio.h:
+
+../wait.h:
 

@@ -8,6 +8,7 @@
 #include "debug.h"          //toasciihex
 #include "cti.h"            //terminal
 #include "gpio.h"           //leds
+#include "wait.h"           //waitMicroseconds
 
 uint32_t pid = 0x12341234;  //0d305402420
 
@@ -87,6 +88,9 @@ void HardFaultHandler(void)
 //DEBUG:
     pid = 123;
 
+    BB_LED1 =1;                 //turn on the yellow LED
+
+
     //print out alerts
     putsUart0("Hard fault in thread");
     intToAlpha(pid,(char*)str);
@@ -116,6 +120,8 @@ flags (in hex). Also, print the offending instruction and data addresses. Displa
     memdump *m={0};
     pid = 456;
 
+    BB_LED2 =1;                 //turn on the orange LED
+
     putsUart0("MPU fault in thread ");
     intToAlpha(pid,(char*)str);
     putsUart0((char*)str);
@@ -130,8 +136,9 @@ flags (in hex). Also, print the offending instruction and data addresses. Displa
     putsUart0((char*)str);
     putsUart0("\r\n");
 
+    //clear the mpu fault pending flag
 
-    while(1){}
+
 }
 
 //bus fault
@@ -141,6 +148,8 @@ void BusFaultHandler(void)
 by the OS. Or now, just use a variable named pid.
 */
     char str[BUFFER_STR_SIZE];
+
+    BB_LED3=1;
 
     putsUart0("Bus fault in thread ");
     intToAlpha(pid,(char*)str);
@@ -158,6 +167,8 @@ void UsageFaultHandler(void)
 provided by the OS. Or now, just use a variable named pid.
 */
     char str[BUFFER_STR_SIZE];
+
+    BB_LED4 =1;                 //turn on the green LED
 
     putsUart0("Usage fault in thread ");
     intToAlpha(pid,(char*)str);
@@ -188,6 +199,9 @@ clear them and display the message “memory protection called this handler”.
     uint32_t val;
     char str[BUFFER_STR_SIZE];
 
+    BB_LEDR =1;                 //turn on the TIVA red LED
+
+
     putsUart0("Pendsv in thread ");
     intToAlpha(pid,(char*)str);
     putsUart0((char*)str);
@@ -200,7 +214,9 @@ clear them and display the message “memory protection called this handler”.
         putsUart0("memory protection called this handler\r\n");
     }
 
-    while(1){}
+
+    NVIC_INT_CTRL_R |= NVIC_INT_CTRL_UNPEND_SV;     //clear the pend so we don't return.
+    return;
 }
 
 

@@ -22,6 +22,18 @@
 #include <stdint.h>
 #include <stdbool.h>
 
+
+//bit-band defines for LED control.
+#define BB_LED1     (*((volatile uint32_t *)(0x42000000 + ((0x400243FC - 0x40000000) *32) + (1 * 4)))) //PE1
+#define BB_LED2     (*((volatile uint32_t *)(0x42000000 + ((0x400243FC - 0x40000000) *32) + (2 * 4)))) //PE2
+#define BB_LED3     (*((volatile uint32_t *)(0x42000000 + ((0x400243FC - 0x40000000) *32) + (3 * 4)))) //PE3
+#define BB_LED4     (*((volatile uint32_t *)(0x42000000 + ((0x400243FC - 0x40000000) *32) + (4 * 4)))) //PE4
+
+#define BB_LEDR     (*((volatile uint32_t *)(0x42000000 + ((0x400253FC - 0x40000000) *32) + (1 * 4)))) //PF1
+#define BB_LEDB     (*((volatile uint32_t *)(0x42000000 + ((0x400253FC - 0x40000000) *32) + (2 * 4)))) //PF2
+#define BB_LEDG     (*((volatile uint32_t *)(0x42000000 + ((0x400253FC - 0x40000000) *32) + (3 * 4)))) //PF3
+
+
 // Enum values set to bitband address of bit 0 of the GPIO_PORTx_DATA_R register
 typedef enum _PORT
 {

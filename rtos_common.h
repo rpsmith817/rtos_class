@@ -10,6 +10,8 @@
 
 #include "cti.h"
 
+extern uint32_t pid;
+
 void yield(void);
 
 //for reboot.

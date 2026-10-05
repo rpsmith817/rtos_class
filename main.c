@@ -7,8 +7,8 @@
 
 //pin targets:
 //UART0 -> PA0+PA1
-//BTNS -> PC4, PC5, PC6, PC7, PD6, PD7, PF4
-//LEDS -> PF1, PE3, PE2, PE1
+//BTNS -> PC4, PC5, PC6, PC7, PD6, PA3, PA4
+//LEDS -> PE4, PE3, PE2, PE1, from bottom up.
 
 
 //includes
@@ -23,17 +23,21 @@
 #include "memory.h"         //mpu and other memory functions
 #include "gpio.h"           //gpio control code from losh from iot, for buttons and leds.
 
-//global define for the psp, but global defines are dirty and wrong. except this one.
+#include "interruptor.h"    //debug/test code incl faultloop function.
+
+//global define for the psp, but global defines are dirty and wrong. except this one, for now.
 uint32_t psp= 0x20008000;
 
 //all hardware inits
 void init_hw(void)
 {
-	initSystemClockTo40Mhz();
-	initUart0();
+	initSystemClockTo40Mhz();   //setup system clock to 40MHz
+
+	initUart0();    //set up the USB UART0 on PA0 + PA1
 
 //setup for buttons etc, code courtesy of losh from iot.
 	//enable required ports
+	enablePort(PORTA);
 	enablePort(PORTC);
 	enablePort(PORTD);
 	enablePort(PORTE);
@@ -50,36 +54,47 @@ void init_hw(void)
     enablePinPullup(PORTC,7);
 	selectPinDigitalInput(PORTD,6);
     enablePinPullup(PORTD,6);
-	selectPinDigitalInput(PORTD,7);
-    enablePinPullup(PORTD,7);
-	selectPinDigitalInput(PORTF,4);
-    enablePinPullup(PORTF,4);
+	selectPinDigitalInput(PORTA,3);
+    enablePinPullup(PORTA,3);
+	selectPinDigitalInput(PORTA,4);
+    enablePinPullup(PORTA,4);
 
     //setup LEDs
-    selectPinPushPullOutput(PORTF,1);
+    selectPinPushPullOutput(PORTE,4);
     selectPinPushPullOutput(PORTE,3);
     selectPinPushPullOutput(PORTE,2);
     selectPinPushPullOutput(PORTE,1);
+    selectPinPushPullOutput(PORTF,1);
+    selectPinPushPullOutput(PORTF,2);
+    selectPinPushPullOutput(PORTF,3);
 
+    return;
 }
 
 //loop for the PSP area.
-ecscape()
+void ecscape()
 {
-    faultloop();    //perform tests of interrupts
+    faultloop();//perform tests of interrupts
 
     while(1);   //we live here now.
-    return;     //we will never return.
+}
+
+//enable fault handlers where needed
+void setup_handlers()
+{
+    NVIC_SYS_HND_CTRL_R |= (NVIC_SYS_HND_CTRL_USAGE | NVIC_SYS_HND_CTRL_BUS/* | NVIC_SYS_HND_CTRL_MEM*/);
 }
 
 //main
 int main(void)
 {
-	init_hw();	    //start up all hardware
-	setpsp(psp);    //set the psp bit to whatever it should be.
-	setASPBit();    //set the ASP bit so that we get into program stack
+	init_hw();	        //start up all hardware
+	init_mem();         //setup the memory map
+	setup_handlers();   //enable fault handling where required.
+	setpsp(&psp);       //set the psp bit to whatever it should be.
+	setASPBit();        //set the ASP bit so that we get into program stack
 
-	ecscape();      //go live in PSP land.
+	ecscape();          //go live in PSP land.
 
 //DEBUG:
 //    helpMe();       //debug command to list out cti functions.

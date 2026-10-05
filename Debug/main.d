@@ -19,7 +19,9 @@ main.obj: ../rtos_common.h
 main.obj: ../debug.h
 main.obj: ../asp_bit.h
 main.obj: ../memory.h
+main.obj: /home/rps/ti/ccs1281/ccs/tools/compiler/ti-cgt-arm_20.2.7.LTS/include/stddef.h
 main.obj: ../gpio.h
+main.obj: ../interruptor.h
 
 ../main.c:
 
@@ -59,5 +61,9 @@ main.obj: ../gpio.h
 
 ../memory.h:
 
+/home/rps/ti/ccs1281/ccs/tools/compiler/ti-cgt-arm_20.2.7.LTS/include/stddef.h:
+
 ../gpio.h:
+
+../interruptor.h:
 

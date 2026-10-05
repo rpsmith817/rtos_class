@@ -1,5 +1,5 @@
 // Jason Losh
-
+//modified by Ryan S 10/2/2024
 //-----------------------------------------------------------------------------
 // Hardware Target
 //-----------------------------------------------------------------------------
@@ -22,19 +22,20 @@
 
 // Bit offset of the registers relative to bit 0 of DATA_R at 3FCh
 // reg offset x 4 bytes / reg x 8 bits / byte
-#define OFS_DATA_TO_DIR    1*4*8
-#define OFS_DATA_TO_IS     2*4*8
-#define OFS_DATA_TO_IBE    3*4*8
-#define OFS_DATA_TO_IEV    4*4*8
-#define OFS_DATA_TO_IM     5*4*8
-#define OFS_DATA_TO_IC     8*4*8
-#define OFS_DATA_TO_AFSEL  9*4*8
-#define OFS_DATA_TO_ODR   68*4*8
-#define OFS_DATA_TO_PUR   69*4*8
-#define OFS_DATA_TO_PDR   70*4*8
-#define OFS_DATA_TO_DEN   72*4*8
-#define OFS_DATA_TO_CR    74*4*8
-#define OFS_DATA_TO_AMSEL 75*4*8
+#define OFS_DATA_TO_DIR      1*4*8
+#define OFS_DATA_TO_IS       2*4*8
+#define OFS_DATA_TO_IBE      3*4*8
+#define OFS_DATA_TO_IEV      4*4*8
+#define OFS_DATA_TO_IM       5*4*8
+#define OFS_DATA_TO_IC       8*4*8
+#define OFS_DATA_TO_AFSEL    9*4*8
+#define OFS_DATA_TO_ODR     68*4*8
+#define OFS_DATA_TO_PUR     69*4*8
+#define OFS_DATA_TO_PDR     70*4*8
+#define OFS_DATA_TO_DEN     72*4*8
+#define OFS_DATA_TO_CR      74*4*8
+#define OFS_DATA_TO_AMSEL   75*4*8
+
 
 //-----------------------------------------------------------------------------
 // Global variables
