@@ -9,7 +9,7 @@
 
 
 #define HEAP_AT 0x20001000      //the kernel reserve 4k memory = 4096, though this is superseded for now by the request for the program stack to start at 0x20008000.
-#define TASKMAX 16              //max number of tasks that we can expect.
+#define TASKMAX 16              //max number of tasks that we can expect. i dont remember why this was made!
 #define PAGES 28                //max number of pages the heap may have. in our case 32-4 = 28, as 4 is reserved for kernel.
 #define PAGE_SIZE 1024          //default size from assignment.
 

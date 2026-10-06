@@ -123,7 +123,7 @@ void free_to_heap(void *p)
     while((i<PAGES) && (the_map.pages[i].start != p)){i++;} //loop through til we find the page, but bound our checks to the correct range
     if(i<PAGES)                                             //if less than pages we found a match
     {
-        if((the_map.pages[i].the_pid == 0) || ((the_map.pages[i].the_pid != pid) && (pid != 0)) return;   //if we are already free then leave. if we don't have permission or aren't the kernel, then leave.
+        if((the_map.pages[i].the_pid == 0) || ((the_map.pages[i].the_pid != pid) && (pid != 0))){ return;}   //if we are already free then leave. if we don't have permission or aren't the kernel, then leave.
         the_map.free += the_map.pages[i].size;      //otherwise add some freeness
         clearblock(i);                              //clear the block
         freeBlockCount();                           //and count up all the free pages and set their block sizes for later use.
@@ -301,8 +301,9 @@ void applySramAccessMask(uint64_t srdBitMask)
     uint8_t i;  //an iterator0
     for(i=0;i<4;i++)
     {
-        NVIC_MPU_NUMBER_R |= (0x3_i);   //go through each SRAM region
-        NVIC_MPU_ATTR_R = 0x10000000 | (3<<24) | (6<<16) | (12<<1) | 1 | ((srdBitMask | (0xFF<<i+3)) << 8); //note that we replaced the srdbits with the relevant portion of the given bitfield. see assumptions above.
+        NVIC_MPU_NUMBER_R = (0x3+i);    //select each SRAM region in turn. assign, not or, so we don't accumulate region numbers.
+        //rewrite the attributes with this region's byte of the mask in the srd field [15:8].
+        NVIC_MPU_ATTR_R = 0x10000000 | (3<<24) | (6<<16) | (12<<1) | 1 | ((uint32_t)((srdBitMask >> (8*i)) & 0xFF) << 8);
     }
 
     //an instruction barrier is called for in cases where an interrupt might occur per the manual p.127, form is at p.134.
@@ -310,17 +311,37 @@ void applySramAccessMask(uint64_t srdBitMask)
 }
 
 //adds access to the requested SRAM address range
-void addSramAccessWindow(uint64_t * srdBitMask, uint32_t *baseAdd, uint32_t size_in_bytes)
+void addSramAccessWindow(uint64_t *srdBitMask, uint32_t *baseAdd, uint32_t size_in_bytes)
 {
-    //
+    uint32_t start = (uint32_t)baseAdd;     //work with the addr as a number instead of constantly casting
+    uint8_t first;                          //first subregion index in window
+    uint8_t last;                           //one past the last subregion index in the window
+    uint8_t i;                              //an iteratorr
+
+    //given the size in bytes from a base address, check first if the window is within sram bounds and nonzero.
+    if((srdBitMask == NULL) || (size_in_bytes == 0)){ return;}
+    if((start < 0x20000000) || (size_in_bytes > (32*PAGE_SIZE) || ((start - 0x20000000) + size_in_bytes > (32*PAGE_SIZE)))){ return;}
+
+    //then check that it lines up on subregion boundaries.
+    if(((start - 0x20000000) % PAGE_SIZE) || (size_in_bytes % PAGE_SIZE)) {return;}
+
+    //then figure out what bits to clear. subregion n lives at SRAM_AT + n*1024, and is bit n of the mask, and we love that about it.
+    first = (start - 0x20000000) / PAGE_SIZE;
+    last  = first + (size_in_bytes / PAGE_SIZE);
+    for(i=first; i<last; i++)
+    {
+        *srdBitMask &= ~((uint64_t)1 << i);  //clearing the bit enables the subregion, which grants the region's AP=011 access.
+    }
 
     //an instruction barrier is called for in cases where an interrupt might occur, per the manual p.127, form is at p.134.
     memBarrier();
 }
 
-//dunno. This is mentioned in the doc, called with the values (uint32_t*)0x20000000 and 32768
-void setSramAccessWindow(uint32_t *ijustworkhere, uint32_t metoo)
+//dunno. This is mentioned in the doc, called with the values (uint32_t*)0x20000000 and 32768.
+//we will make this a function that calls the add window function and apply window function for a given base address and size of access window.
+void setSramAccessWindow(uint32_t *baseAdd, uint32_t size_in_bytes)
 {
-    //maybe a typo?
+    uint64_t srdBitMask = createNoSramAccess();               //pull least access at first
+    addSramAccessWindow(&srdBitMask,baseAdd,size_in_bytes); //clear out portions we want to give access
+    applySramAccessMask(srdBitMask);                        //apply our changes
 }
-

@@ -1,6 +1,7 @@
 # FIXED
 
 memory.obj: ../memory.c
+memory.obj: ../tm4c123gh6pm.h
 memory.obj: ../memory.h
 memory.obj: /home/rps/ti/ccs1281/ccs/tools/compiler/ti-cgt-arm_20.2.7.LTS/include/stdint.h
 memory.obj: /home/rps/ti/ccs1281/ccs/tools/compiler/ti-cgt-arm_20.2.7.LTS/include/_ti_config.h
@@ -16,8 +17,11 @@ memory.obj: /home/rps/ti/ccs1281/ccs/tools/compiler/ti-cgt-arm_20.2.7.LTS/includ
 memory.obj: ../rtos_common.h
 memory.obj: /home/rps/ti/ccs1281/ccs/tools/compiler/ti-cgt-arm_20.2.7.LTS/include/stdbool.h
 memory.obj: ../cti.h
+memory.obj: ../asp_bit.h
 
 ../memory.c:
+
+../tm4c123gh6pm.h:
 
 ../memory.h:
 
@@ -48,4 +52,6 @@ memory.obj: ../cti.h
 /home/rps/ti/ccs1281/ccs/tools/compiler/ti-cgt-arm_20.2.7.LTS/include/stdbool.h:
 
 ../cti.h:
+
+../asp_bit.h:
 

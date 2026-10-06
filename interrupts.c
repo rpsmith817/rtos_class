@@ -31,17 +31,17 @@ void dumpmem(char* str, memdump* m)
     putsUart0("\r\n");
 
     putsUart0("XPSR: ");
-    toAsciiHex((char*)str,m->ptr_psp[3]); //convert xpsr to hex.
+    toAsciiHex((char*)str,m->ptr_psp[7]); //convert xpsr to hex.
     putsUart0((char*)str);
     putsUart0("\r\n");
 
     putsUart0("PC: ");
-    toAsciiHex((char*)str,m->ptr_psp[3]); //convert PC to hex.
+    toAsciiHex((char*)str,m->ptr_psp[6]); //convert PC to hex.
     putsUart0((char*)str);
     putsUart0("\r\n");
 
     putsUart0("LR: ");
-    toAsciiHex((char*)str,m->ptr_psp[3]); //convert LR to hex.
+    toAsciiHex((char*)str,m->ptr_psp[5]); //convert LR to hex.
     putsUart0((char*)str);
     putsUart0("\r\n");
 
@@ -66,7 +66,7 @@ void dumpmem(char* str, memdump* m)
     putsUart0("\r\n");
 
     putsUart0("R12: ");
-    toAsciiHex((char*)str,m->ptr_psp[3]); //convert R12 to hex.
+    toAsciiHex((char*)str,m->ptr_psp[4]); //convert R12 to hex.
     putsUart0((char*)str);
     putsUart0("\r\n");
 
