@@ -114,12 +114,13 @@ uint8_t check_free(uint8_t cnt)
 void free_to_heap(void *p)
 {
     uint8_t i=0;
-    while((i<PAGES) && (the_map.pages[i].start != p)){i++;} //loop through til we find the page
+    while((i<PAGES) && (the_map.pages[i].start != p)){i++;} //loop through til we find the page, but bound our checks to the correct range
     if(i<PAGES)                                             //if less than pages we found a match
     {
-        the_map.free += the_map.pages[i].size;
-        clearblock(i);  //clear the block
-        freeBlockCount();   //count up all the free pages and set their block sizes for later use.
+        if(the_map.pages[i].the_pid == 0) return;   //if we are already free then leave.
+        the_map.free += the_map.pages[i].size;      //otherwise add some freeness
+        clearblock(i);                              //clear the block
+        freeBlockCount();                           //and count up all the free pages and set their block sizes for later use.
     }
     else
     {
