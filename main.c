@@ -80,7 +80,10 @@ void ecscape()
 //enable fault handlers where needed
 void setup_handlers()
 {
-    NVIC_SYS_HND_CTRL_R |= (NVIC_SYS_HND_CTRL_USAGE | NVIC_SYS_HND_CTRL_BUS/* | NVIC_SYS_HND_CTRL_MEM*/);
+    NVIC_SYS_HND_CTRL_R |= (NVIC_SYS_HND_CTRL_USAGE | NVIC_SYS_HND_CTRL_BUS | NVIC_SYS_HND_CTRL_MEM);
+    //setup for the fault creation
+    NVIC_CFG_CTRL_R |= (1<<4);  //the fifth bit in the --ctl register is the div0 bit, set high and we trap on divide by 0. Losh said to set this bit and then cause a div0 fault.
+
 }
 
 //main
@@ -88,9 +91,12 @@ int main(void)
 {
 	init_hw();	        //start up all hardware
 	init_mem();         //setup the memory map
-	setup_handlers();   //enable fault handling where required.
+	setup_handlers();   //enable fault handling where required
+    mpuEnablePls();     //enable the mpu
+
 	setpsp((void*)HEAP_AT);       //set the psp bit to whatever it should be.
 	setASPBit();        //set the ASP bit so that we get into program stack
+
 
 	ecscape();          //go live in PSP land.
 

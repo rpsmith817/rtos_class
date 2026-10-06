@@ -9,6 +9,8 @@
 #include "gpio.h"           //buttons
 #include "interrupts.h"     //makehardfault association.
 #include "wait.h"           //waitMicrosecond
+#include "memory.h"         //mpuenable
+#include "asp_bit.h"        //tmpl
 
 uint8_t makehardfault=0;
 
@@ -22,9 +24,13 @@ void cause_hardfault(void)
 
 }
 
+
 //mpufault -> gotta set a protected area first.
 void cause_mpufault(void)
 {
+
+    volatile uint32_t *bad_ptr = (volatile uint32_t *)0x20004000;   //declare a pointer to a reserved area
+    *bad_ptr = 0x1; //try to write to it.
 
 
     return;
@@ -59,6 +65,10 @@ void cause_pendsv(void)
 
 }
 
+void privileged()
+{
+    setTmpl();          //get into unprivileged mode now pls
+}
 
 //cause faults by checking for button presses.
 void faultloop(void)
@@ -66,8 +76,6 @@ void faultloop(void)
     volatile uint8_t buttons=0;
 
 
-    //setup for the fault creation
-    NVIC_CFG_CTRL_R |= (1<<4);  //the fifth bit in the --ctl register is the div0 bit, set high and we trap on divide by 0. Losh said to set this bit and then cause a div0 fault.
 
     while(1)
     {
@@ -76,7 +84,7 @@ void faultloop(void)
         buttons = (!getPinValue(PORTC,4) <<6) + (!getPinValue(PORTC,5) <<5) + (!getPinValue(PORTC,6) <<4) + (!getPinValue(PORTC,7) <<3) + (!getPinValue(PORTD,6) <<2) + (!getPinValue(PORTA,3) <<1) + (!getPinValue(PORTA,4) <<0);
         if(buttons)
         {
-            waitMicrosecond(150000); //wait a little while to debounce the button.
+            //waitMicrosecond(150000); //wait a little while to debounce the button.
 
             switch(buttons)
             {
@@ -100,6 +108,7 @@ void faultloop(void)
                 break;
             case (1<<3):    //tbd
                 BB_LEDG =1;                 //turn on the TIVA green LED
+                privileged();
                 break;
             }
 

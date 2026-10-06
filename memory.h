@@ -16,6 +16,10 @@
 //init memory
 void init_mem(void);
 
+void mpuEnablePls(void);
+void setBasicAccess(void);
+
+
 //return a pointer given a mapped page index.
 void* point_to_mem(uint8_t idx);
 

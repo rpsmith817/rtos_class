@@ -6,6 +6,7 @@
 ;
 
 	.def setASPBit
+	.def setTmpl
 	.def setpsp
 	.def getpsp
 	.def getmsp
@@ -25,6 +26,15 @@ setASPBit:				;
 		MSR	CONTROL, R0	;
 		ISB				;
 		BX	LR			;
+
+;;;;;;;;;;;;;;;;;;;;;;;;;
+;	go to unprivileged mode per losh
+setTmpl:				;
+		MRS R0, CONTROL	;
+		ORR R0,R0,#1	;
+		MSR CONTROL, R0 ;
+		ISB				;
+		BX LR			;
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;
 ;	set the psp to what is loaded in R0

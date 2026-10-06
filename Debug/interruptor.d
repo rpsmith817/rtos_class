@@ -17,6 +17,9 @@ interruptor.obj: ../tm4c123gh6pm.h
 interruptor.obj: ../gpio.h
 interruptor.obj: ../interrupts.h
 interruptor.obj: ../wait.h
+interruptor.obj: ../memory.h
+interruptor.obj: /home/rps/ti/ccs1281/ccs/tools/compiler/ti-cgt-arm_20.2.7.LTS/include/stddef.h
+interruptor.obj: ../asp_bit.h
 
 ../interruptor.c:
 
@@ -51,4 +54,10 @@ interruptor.obj: ../wait.h
 ../interrupts.h:
 
 ../wait.h:
+
+../memory.h:
+
+/home/rps/ti/ccs1281/ccs/tools/compiler/ti-cgt-arm_20.2.7.LTS/include/stddef.h:
+
+../asp_bit.h:
 

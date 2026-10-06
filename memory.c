@@ -236,6 +236,11 @@ Memory regions should be
 //set the mpu to be used. we only care about enabling, not the background rule. We set our own in region0, so we don't really need a -1, and this simplifies things for us.
 void mpuEnablePls(void)
 {
+    setBasicAccess();
+    allowFlashAccess();
+    allowPeripheralAccess();
+    setupSramAccess();
+
     NVIC_MPU_CTRL_R |= 0x1;
 }
 
@@ -253,7 +258,7 @@ void setBasicAccess(void)
 void allowFlashAccess(void)
 {
     //set base register, region, and validity bit to ensure we write it. region1
-    NVIC_MPU_BASE_R = 0x00000000 | (0x1 << 4) | 0x1;
+    NVIC_MPU_BASE_R = 0x00000000 | 0x1;
     //set attributes for rwx all, texscb=000010, SIZE -> size=0x00040000 -> 2^18, should be 2^(SIZE-1), so size=17
     NVIC_MPU_ATTR_R = 0x00000000 | (3 << 24) | (0x2<<16) | (17<<1) | 1;
 }
@@ -274,7 +279,7 @@ void setupSramAccess(void)
     //region3
     NVIC_MPU_BASE_R = 0x20000000 | (0x1<<4)|0x3;
     //texscb=000110 full size is 32kib, we need 4 regions at that size so we need 32kib/4=8kib = 0x2000 -> 2^13, so SIZE=12 for each. Subregions are enabled for each, removing access to unprivileged tasks.
-    NVIC_MPU_ATTR_R = 0x10000000 | (3<<24) | (6<<16) | (12<<1) | 1 | (0xFF << 8);
+    NVIC_MPU_ATTR_R = 0x10000000 | (3<<24) | (6<<16) | (12<<1) | 1;
     //then the rest follow the same pattern.
     //region4
     NVIC_MPU_BASE_R = 0x20002000 | (0x1<<4)|0x4;

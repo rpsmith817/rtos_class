@@ -136,7 +136,12 @@ flags (in hex). Also, print the offending instruction and data addresses. Displa
     putsUart0((char*)str);
     putsUart0("\r\n");
 
-    //clear the mpu fault pending flag
+    //clear the mpu fault pending flag bitwise
+    NVIC_SYS_HND_CTRL_R &= ~(1<<13);
+
+
+    //set pendsv flag
+    NVIC_INT_CTRL_R |= NVIC_INT_CTRL_PEND_SV;
 
 
 }
@@ -214,6 +219,7 @@ clear them and display the message “memory protection called this handler”.
         putsUart0("memory protection called this handler\r\n");
     }
 
+    while(1){}
 
     NVIC_INT_CTRL_R |= NVIC_INT_CTRL_UNPEND_SV;     //clear the pend so we don't return.
     return;
