@@ -7,7 +7,7 @@
 
 //pin targets:
 //UART0 -> PA0+PA1
-//BTNS -> PC4, PC5, PC6, PC7, PD6, PA3, PA4
+//BTNS -> PC4, PC5, PC6, PC7, PD6, PA3, PA4,
 //LEDS -> PE4, PE3, PE2, PE1, from bottom up.
 
 
@@ -25,8 +25,6 @@
 
 #include "interruptor.h"    //debug/test code incl faultloop function.
 
-//global define for the psp, but global defines are dirty and wrong. except this one, for now.
-uint32_t psp= 0x20008000;
 
 //all hardware inits
 void init_hw(void)
@@ -91,7 +89,7 @@ int main(void)
 	init_hw();	        //start up all hardware
 	init_mem();         //setup the memory map
 	setup_handlers();   //enable fault handling where required.
-	setpsp(&psp);       //set the psp bit to whatever it should be.
+	setpsp((void*)HEAP_AT);       //set the psp bit to whatever it should be.
 	setASPBit();        //set the ASP bit so that we get into program stack
 
 	ecscape();          //go live in PSP land.
