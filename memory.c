@@ -6,10 +6,10 @@
 #include "rtos_common.h"    //pid
 #include "asp_bit.h"        //memBarrier
 
-#define TEXSCB_FL (0x2<<15)     //tex, s, c, and b settings for flash
-#define TEXSCB_ISRAM (0x6<<15)  //"" for internal SRAM
-#define TEXSCB_ESRAM (0x9<<15)  //"" for external SRAM
-#define TEXSCB_PER (0x5<<15)    //"" for peripherals.
+#define TEXSCB_FL (0x2<<16)     //tex, s, c, and b settings for flash
+#define TEXSCB_ISRAM (0x6<<16)  //"" for internal SRAM
+#define TEXSCB_ESRAM (0x9<<16)  //"" for external SRAM
+#define TEXSCB_PER (0x5<<16)    //"" for peripherals.
 
 //defines a page
 typedef struct _page
