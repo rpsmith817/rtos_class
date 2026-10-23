@@ -1,15 +1,20 @@
-/*
- * wait.h
- *
- *  Created on: Feb 1, 2025
- *      Author: bdavis
- */
+// Wait functions
+// Jason Losh
+
+//-----------------------------------------------------------------------------
+// Hardware Target
+//-----------------------------------------------------------------------------
+
+// Target uC:       TM4C123GH6PM
+// System Clock:    40 MHz
 
 #ifndef WAIT_H_
 #define WAIT_H_
 
+//-----------------------------------------------------------------------------
+// Subroutines
+//-----------------------------------------------------------------------------
 
-void waitMicrosecond(uint32_t usec);
+void waitMicrosecond(uint32_t us);
 
-
-#endif /* WAIT_H_ */
+#endif

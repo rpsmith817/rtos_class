@@ -40,5 +40,8 @@ void UsageFaultHandler(void);
 //pendsv
 void PendSVHandler(void);
 
+//svcisr
+void SVC_ISR(void);
+
 
 #endif
