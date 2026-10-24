@@ -17,6 +17,7 @@ cti.obj: ../cti.h
 cti.obj: ../clock.h
 cti.obj: ../wait.h
 cti.obj: ../rtos_common.h
+cti.obj: ../shell.h
 
 ../cti.c:
 
@@ -51,4 +52,6 @@ cti.obj: ../rtos_common.h
 ../wait.h:
 
 ../rtos_common.h:
+
+../shell.h:
 

@@ -12,13 +12,16 @@ ORDERED_OBJS += \
 "./clock.obj" \
 "./cti.obj" \
 "./debug.obj" \
+"./faults.obj" \
 "./gpio.obj" \
-"./interruptor.obj" \
-"./interrupts.obj" \
-"./main.obj" \
-"./memory.obj" \
+"./kernel.obj" \
+"./mm.obj" \
+"./rtos.obj" \
 "./rtos_common.obj" \
+"./shell.obj" \
+"./tasks.obj" \
 "./tm4c123gh6pm_startup_ccs.obj" \
+"./uart0.obj" \
 "./wait.obj" \
 "../tm4c123gh6pm.cmd" \
 $(GEN_CMDS__FLAG) \
@@ -150,8 +153,8 @@ rtos_class.out: $(OBJS) $(CMD_SRCS) $(GEN_CMDS)
 # Other Targets
 clean:
 	-$(RM) $(EXE_OUTPUTS__QUOTED)
-	-$(RM) "asp_bit.obj" "clock.obj" "cti.obj" "debug.obj" "gpio.obj" "interruptor.obj" "interrupts.obj" "main.obj" "memory.obj" "rtos_common.obj" "tm4c123gh6pm_startup_ccs.obj" "wait.obj" 
-	-$(RM) "clock.d" "cti.d" "debug.d" "gpio.d" "interruptor.d" "interrupts.d" "main.d" "memory.d" "rtos_common.d" "tm4c123gh6pm_startup_ccs.d" "wait.d" 
+	-$(RM) "asp_bit.obj" "clock.obj" "cti.obj" "debug.obj" "faults.obj" "gpio.obj" "kernel.obj" "mm.obj" "rtos.obj" "rtos_common.obj" "shell.obj" "tasks.obj" "tm4c123gh6pm_startup_ccs.obj" "uart0.obj" "wait.obj" 
+	-$(RM) "clock.d" "cti.d" "debug.d" "faults.d" "gpio.d" "kernel.d" "mm.d" "rtos.d" "rtos_common.d" "shell.d" "tasks.d" "tm4c123gh6pm_startup_ccs.d" "uart0.d" "wait.d" 
 	-$(RM) "asp_bit.d" 
 	-@echo 'Finished clean'
 	-@echo ' '

@@ -16,6 +16,9 @@
 #include "tm4c123gh6pm.h"
 #include "mm.h"
 #include "kernel.h"
+#include "faults.h"
+#include "uart0.h"
+#include "cti.h"
 
 //-----------------------------------------------------------------------------
 // RTOS Defines and Kernel Variables
@@ -41,16 +44,17 @@ typedef struct _semaphore
 semaphore semaphores[MAX_SEMAPHORES];
 
 // task states
-#define STATE_INVALID           0 // no task
-#define STATE_READY             1 // can start/resume at any time
-#define STATE_DELAYED           3 // awaiting timeout
-#define STATE_BLOCKED_SEMAPHORE 4 // blocked by semaphore
-#define STATE_BLOCKED_MUTEX     5 // blocked by mutex
-#define STATE_KILLED            6 // task has been killed (all memory freed)
+#define ST_INVALID           0 // no task
+#define ST_READY             1 // can start/resume at any time
+#define ST_DELAYED           3 // awaiting timeout
+#define ST_BLOCKED_SEM       4 // blocked by semaphore
+#define ST_BLOCKED_MUT       5 // blocked by mutex
+#define ST_KILLED            6 // task has been killed (all memory freed)
 
 // task
 uint8_t taskCurrent = 0;          // index of last dispatched task
 uint8_t taskCount = 0;            // total number of valid tasks
+uint32_t current_pid;             // the current pid
 
 // control
 bool priorityScheduler = true;    // priority (true) or round-robin (false)
@@ -107,7 +111,7 @@ void initRtos(void)
     // clear out tcb records
     for (i = 0; i < MAX_TASKS; i++)
     {
-        tcb[i].state = STATE_INVALID;
+        tcb[i].state = ST_INVALID;
         tcb[i].pid = 0;
     }
 }
@@ -123,7 +127,7 @@ uint8_t rtosScheduler(void)
         task++;
         if (task >= MAX_TASKS)
             task = 0;
-        ok = (tcb[task].state == STATE_READY);
+        ok = (tcb[task].state == ST_READY);
     }
     return task;
 }
@@ -159,8 +163,8 @@ bool createThread(_fn fn, const char name[], uint8_t priority, uint32_t stackByt
         {
             // find first available tcb record
             i = 0;
-            while (tcb[i].state != STATE_INVALID) {i++;}
-            tcb[i].state = STATE_READY;
+            while (tcb[i].state != ST_INVALID) {i++;}
+            tcb[i].state = ST_READY;
             tcb[i].stackSize = stackBytes;
             tcb[i].pid = fn;
             tcb[i].sp = 0;
@@ -199,7 +203,7 @@ void setThreadPriority(_fn fn, uint8_t priority)
 void yield(void)
 {
     //call pendsv through svcall
-    __asm("SVC 1\n");
+//    __asm("SVC 1\n");
 
 }
 
@@ -208,7 +212,7 @@ void yield(void)
 void sleep(uint32_t tick)
 {
     //svcall
-    __asm("SVC 2\n");
+//    __asm("SVC 2\n");
 }
 
 // REQUIRED: modify this function to wait a semaphore using pendsv
@@ -246,9 +250,9 @@ void systickIsr(void)
         if(tcb[i].ticks>0)
         {
             tcb[i].ticks--;
-            if(tcb[i].tick==0)
+            if(tcb[i].ticks==0)
             {
-                tcb[i].state=ready;
+                tcb[i].state=ST_READY;
             }
         }
     }
@@ -263,11 +267,10 @@ void pendSvIsr(void)
     uint32_t val;
     char str[BUFFER_STR_SIZE];
 
-    BB_LEDR =1;                 //turn on the TIVA red LED
 
 
     putsUart0("Pendsv in thread ");
-    intToAlpha(pid,(char*)str);
+    intToAlpha(current_pid,(char*)str);
     putsUart0((char*)str);
     putsUart0("\r\n");
 
@@ -295,38 +298,38 @@ void pendSvIsr(void)
 //paired functions courtesy of https://support.arm.com/documentation/107706/0100/System-exceptions/Supervisor-Call---SVC
 void svCallIsr(void)
 {
-  __asm(
-    ".global SVC_Handler_Main\n"
-    "TST lr, #4\n"
-    "ITE EQ\n"
-    "MRSEQ r0, MSP\n"
-    "MRSNE r0, PSP\n"
-    "B SVC_Handler_Main\n"
-  ) ;
-}
-void SVC_Handler_Main(unsigned int *svc_args)
-{
-    //only yield right now, call pendsv
-    unsigned int svc_number;
-
-    /*
-    * Stack contains:
-    * r0, r1, r2, r3, r12, r14, the return address and xPSR
-    * First argument (r0) is svc_args[0]
-    */
-    svc_number = ( ( char * )svc_args[ 6 ] )[ -2 ] ;
-    switch( svc_number )
-    {
-        case 1: //yield
-            NVIC_INT_CTRL_R |= NVIC_INT_CTRL_PEND_SV;   //sets the pendsvcall, but because the priority is lower we go after this call ends.
-            break;
-        case 2: //sleep
-            //state = delay
-            //ticks = R0???whatever arg that sleep(uint32_t tick) had add that to the systick tasklist tick count.
-            //pendsv
-            NVIC_INT_CTRL_R |= NVIC_INT_CTRL_PEND_SV;   //pendsv as above
-
-        default:
-            break;
-    }
+//  __asm(
+//    ".global SVC_Handler_Main\n"
+//    "TST lr, #4\n"
+//    "ITE EQ\n"
+//    "MRSEQ r0, MSP\n"
+//    "MRSNE r0, PSP\n"
+//    "B SVC_Handler_Main\n"
+//  ) ;
+//}
+//void SVC_Handler_Main(unsigned int *svc_args)
+//{
+//    //only yield right now, call pendsv
+//    unsigned int svc_number;
+//
+//    /*
+//    * Stack contains:
+//    * r0, r1, r2, r3, r12, r14, the return address and xPSR
+//    * First argument (r0) is svc_args[0]
+//    */
+//    svc_number = ( ( char * )svc_args[ 6 ] )[ -2 ] ;
+//    switch( svc_number )
+//    {
+//        case 1: //yield
+//            NVIC_INT_CTRL_R |= NVIC_INT_CTRL_PEND_SV;   //sets the pendsvcall, but because the priority is lower we go after this call ends.
+//            break;
+//        case 2: //sleep
+//            //state = delay
+//            //ticks = R0???whatever arg that sleep(uint32_t tick) had add that to the systick tasklist tick count.
+//            //pendsv
+//            NVIC_INT_CTRL_R |= NVIC_INT_CTRL_PEND_SV;   //pendsv as above
+//
+//        default:
+//            break;
+//    }
 }

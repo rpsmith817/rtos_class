@@ -15,26 +15,15 @@
 #include <stdint.h>
 #include "tm4c123gh6pm.h"
 #include "faults.h"
-#include "interrupts.h"
 #include "asp_bit.h"
 #include "debug.h"          //toasciihex
 #include "gpio.h"           //leds
 #include "wait.h"           //waitMicroseconds
-
-#define FAULT_FLAG_MASK 0x030FBFBB
-#define DERR_IERR_FLAG_MASK 0x3
-#define MFAULT_MASK 0xBB
-#define BUFFER_STR_SIZE 11
-
-typedef struct _memdump{
-    uint32_t * ptr_psp;
-    uint32_t* ptr_msp;
-    uint32_t pid;
-    uint32_t fault_flags;
-} memdump;
+#include "kernel.h"
+#include "cti.h"
 
 extern uint8_t makehardfault;   //a forbidden global, forever enshrined here as a testament to my hubris.
-
+extern uint32_t current_pid;
 
 //-----------------------------------------------------------------------------
 // Subroutines
@@ -45,8 +34,9 @@ extern uint8_t makehardfault;   //a forbidden global, forever enshrined here as 
 void initFaultHandlers(void)
 {
     NVIC_SYS_HND_CTRL_R |= (NVIC_SYS_HND_CTRL_USAGE | NVIC_SYS_HND_CTRL_BUS | NVIC_SYS_HND_CTRL_MEM);
+
     //setup for the fault creation
-    NVIC_CFG_CTRL_R |= (1<<4);  //the fifth bit in the --ctl register is the div0 bit, set high and we trap on divide by 0. Losh said to set this bit and then cause a div0 fault.
+//    NVIC_CFG_CTRL_R |= (1<<4);  //the fifth bit in the --ctl register is the div0 bit, set high and we trap on divide by 0. Losh said to set this bit and then cause a div0 fault.
 }
 
 // REQUIRED: If these were written in assembly
@@ -64,10 +54,9 @@ flags (in hex). Also, print the offending instruction and data addresses. Displa
     char str[BUFFER_STR_SIZE];
 
     memdump *m={0};
-    pid = 456;
 
     putsUart0("MPU fault in thread ");
-    intToAlpha(pid,(char*)str);
+    intToAlpha(current_pid,(char*)str);
     putsUart0((char*)str);
     putsUart0("\r\n");
 
@@ -159,12 +148,10 @@ void hardFaultIsr(void)
     memdump *m={0};
     char str[BUFFER_STR_SIZE];
 
-//DEBUG:
-    pid = 123;
 
     //print out alerts
     putsUart0("Hard fault in thread");
-    intToAlpha(pid,(char*)str);
+    intToAlpha(current_pid,(char*)str);
     putsUart0((char*)str);
     putsUart0("\r\n");
 
@@ -182,12 +169,12 @@ void hardFaultIsr(void)
 void busFaultIsr(void)
 {
 /*  If a bus fault exception is invoked, display “Bus fault in thread PID”, where PID will be a variable provided
-by the OS. Or now, just use a variable named pid.
+by the OS. Or now, just use a variable named current_pid.
 */
     char str[BUFFER_STR_SIZE];
 
     putsUart0("Bus fault in thread ");
-    intToAlpha(pid,(char*)str);
+    intToAlpha(current_pid,(char*)str);
     putsUart0((char*)str);
     putsUart0("\r\n");
 
@@ -198,26 +185,26 @@ by the OS. Or now, just use a variable named pid.
 void usageFaultIsr(void)
 {
 /*  If a usage fault exception is invoked, display “Usage fault in thread PID”, where PID will be a variable
-provided by the OS. Or now, just use a variable named pid.
+provided by the OS. Or now, just use a variable named current_pid.
 */
     char str[BUFFER_STR_SIZE];
 
 
     putsUart0("Usage fault in thread ");
-    intToAlpha(pid,(char*)str);
+    intToAlpha(current_pid,(char*)str);
     putsUart0((char*)str);
     putsUart0("\r\n");
 
-    if(makehardfault)
-    {
-        str[0]=1;
-        str[1]=2;
-        while(1)
-        {
-            str[0]-=1;
-            str[1] /= str[0];
-        }
-    }
+//    if(makehardfault)
+//    {
+//        str[0]=1;
+//        str[1]=2;
+//        while(1)
+//        {
+//            str[0]-=1;
+//            str[1] /= str[0];
+//        }
+//    }
 
     while(1){}
 }

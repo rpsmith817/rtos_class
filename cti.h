@@ -17,7 +17,7 @@
 
 
 // declare a pid here so it can be manipulated when we need it later.
-extern uint32_t pid;
+extern uint32_t current_pid;
 
 //stores user data
 typedef struct _USER_DATA {
@@ -98,8 +98,6 @@ void intToAlpha(uint32_t in, char* buf);
 //compare the input to the list of commands, then run the command if we match
 void doCommands(USER_DATA *data);
 
-//shell task/thread/loop
-void shell(void);
 
 //a list of commands and the functions that they will call. We could organize by most commonly used, but I don't know what will be used... We will make 1 table in cti.c and have cti.h provide a reference to it.
 extern const Cti_Cmd_t cti_cmd_list[]; 

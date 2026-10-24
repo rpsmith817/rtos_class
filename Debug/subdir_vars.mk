@@ -13,13 +13,16 @@ C_SRCS += \
 ../clock.c \
 ../cti.c \
 ../debug.c \
+../faults.c \
 ../gpio.c \
-../interruptor.c \
-../interrupts.c \
-../main.c \
-../memory.c \
+../kernel.c \
+../mm.c \
+../rtos.c \
 ../rtos_common.c \
+../shell.c \
+../tasks.c \
 ../tm4c123gh6pm_startup_ccs.c \
+../uart0.c \
 ../wait.c 
 
 S_DEPS += \
@@ -29,13 +32,16 @@ C_DEPS += \
 ./clock.d \
 ./cti.d \
 ./debug.d \
+./faults.d \
 ./gpio.d \
-./interruptor.d \
-./interrupts.d \
-./main.d \
-./memory.d \
+./kernel.d \
+./mm.d \
+./rtos.d \
 ./rtos_common.d \
+./shell.d \
+./tasks.d \
 ./tm4c123gh6pm_startup_ccs.d \
+./uart0.d \
 ./wait.d 
 
 OBJS += \
@@ -43,13 +49,16 @@ OBJS += \
 ./clock.obj \
 ./cti.obj \
 ./debug.obj \
+./faults.obj \
 ./gpio.obj \
-./interruptor.obj \
-./interrupts.obj \
-./main.obj \
-./memory.obj \
+./kernel.obj \
+./mm.obj \
+./rtos.obj \
 ./rtos_common.obj \
+./shell.obj \
+./tasks.obj \
 ./tm4c123gh6pm_startup_ccs.obj \
+./uart0.obj \
 ./wait.obj 
 
 OBJS__QUOTED += \
@@ -57,26 +66,32 @@ OBJS__QUOTED += \
 "clock.obj" \
 "cti.obj" \
 "debug.obj" \
+"faults.obj" \
 "gpio.obj" \
-"interruptor.obj" \
-"interrupts.obj" \
-"main.obj" \
-"memory.obj" \
+"kernel.obj" \
+"mm.obj" \
+"rtos.obj" \
 "rtos_common.obj" \
+"shell.obj" \
+"tasks.obj" \
 "tm4c123gh6pm_startup_ccs.obj" \
+"uart0.obj" \
 "wait.obj" 
 
 C_DEPS__QUOTED += \
 "clock.d" \
 "cti.d" \
 "debug.d" \
+"faults.d" \
 "gpio.d" \
-"interruptor.d" \
-"interrupts.d" \
-"main.d" \
-"memory.d" \
+"kernel.d" \
+"mm.d" \
+"rtos.d" \
 "rtos_common.d" \
+"shell.d" \
+"tasks.d" \
 "tm4c123gh6pm_startup_ccs.d" \
+"uart0.d" \
 "wait.d" 
 
 S_DEPS__QUOTED += \
@@ -89,13 +104,16 @@ C_SRCS__QUOTED += \
 "../clock.c" \
 "../cti.c" \
 "../debug.c" \
+"../faults.c" \
 "../gpio.c" \
-"../interruptor.c" \
-"../interrupts.c" \
-"../main.c" \
-"../memory.c" \
+"../kernel.c" \
+"../mm.c" \
+"../rtos.c" \
 "../rtos_common.c" \
+"../shell.c" \
+"../tasks.c" \
 "../tm4c123gh6pm_startup_ccs.c" \
+"../uart0.c" \
 "../wait.c" 
 
 

@@ -17,6 +17,7 @@
 #include "clock.h"          //clock init
 #include "wait.h"           //waitMicrosecond()
 #include "rtos_common.h"    //common rtos functions.
+#include "shell.h"
 
 //size defs for fields.
 #define MAX_CHARS 80
@@ -186,8 +187,9 @@ void initUart0()
     SYSCTL_RCGCGPIO_R |= SYSCTL_RCGCGPIO_R0;
     __asm(  " NOP\n"
             " NOP\n"
-            " NOP");    //replacement to legacy intrinsic that is no longer supported. waits 3 cycles. REF:https://e2e.ti.com/support/tools/code-composer-studio-group/ccs/f/code-composer-studio-forum/961241/__delay_cycles-is-undefined
+            " NOP\n");    //replacement to legacy intrinsic that is no longer supported. waits 3 cycles. REF:https://e2e.ti.com/support/tools/code-composer-studio-group/ccs/f/code-composer-studio-forum/961241/__delay_cycles-is-undefined
                         //Though even that didn't work, so breaking it out into discrete nops was needed.
+                        //this was all old crap fixing an IDE issue, which has been resolved in another way, but since the code works lets leave it. The assembly should just make some nops, which is what we want anyways.
     // Configure UART0 pins
     GPIO_PORTA_DR2R_R |= UART_TX_MASK;                  // set drive strength to 2mA (not needed since default configuration -- for clarity)
     GPIO_PORTA_DEN_R |= UART_TX_MASK | UART_RX_MASK;    // enable digital on UART0 pins
@@ -486,22 +488,5 @@ void doCommands(USER_DATA *data)
 }
 
 
-// shell loop //
-void shell(void)
-{
-    USER_DATA data;
-    for(;;){
-        if(kbhit())	                        //check if hardware event for keyboard
-        {
 
-            getsUart0(&data);       //grab the data
-            parseFields(&data);     //parse the fields
-            doCommands(&data);    //check if we have a matching command
-        }
-        else
-        {
-            yield();
-        }
-    }
-}
 

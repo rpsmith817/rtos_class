@@ -19,6 +19,10 @@
 //   U0TX (PA1) and U0RX (PA0) are connected to the 2nd controller
 //   The USB on the 2nd controller enumerates to an ICDI interface and a virtual COM port
 //   Configured to 115,200 baud, 8N1
+//   pin targets:
+//   UART0 -> PA0+PA1
+//   BTNS -> PC4, PC5, PC6, PC7, PD6, PA3, PA4,
+//   LEDS -> PE4, PE3, PE2, PE1, from bottom up.
 // Memory Protection Unit (MPU):
 //   Region to control access to flash, peripherals, and bitbanded areas
 //   4 or more regions to allow SRAM access (RW or none for task)
@@ -37,6 +41,7 @@
 #include "faults.h"
 #include "tasks.h"
 #include "shell.h"
+#include "cti.h"
 
 //-----------------------------------------------------------------------------
 // Main

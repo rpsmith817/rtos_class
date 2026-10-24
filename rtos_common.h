@@ -10,7 +10,7 @@
 
 #include "cti.h"
 
-extern uint32_t pid;
+extern uint32_t current_pid;
 
 void yield(void);
 

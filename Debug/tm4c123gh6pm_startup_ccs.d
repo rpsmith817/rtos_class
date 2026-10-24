@@ -11,8 +11,9 @@ tm4c123gh6pm_startup_ccs.obj: /home/rps/ti/ccs1281/ccs/tools/compiler/ti-cgt-arm
 tm4c123gh6pm_startup_ccs.obj: /home/rps/ti/ccs1281/ccs/tools/compiler/ti-cgt-arm_20.2.7.LTS/include/machine/_types.h
 tm4c123gh6pm_startup_ccs.obj: /home/rps/ti/ccs1281/ccs/tools/compiler/ti-cgt-arm_20.2.7.LTS/include/machine/_stdint.h
 tm4c123gh6pm_startup_ccs.obj: /home/rps/ti/ccs1281/ccs/tools/compiler/ti-cgt-arm_20.2.7.LTS/include/sys/_stdint.h
-tm4c123gh6pm_startup_ccs.obj: ../interrupts.h
-tm4c123gh6pm_startup_ccs.obj: ../tm4c123gh6pm.h
+tm4c123gh6pm_startup_ccs.obj: ../faults.h
+tm4c123gh6pm_startup_ccs.obj: ../kernel.h
+tm4c123gh6pm_startup_ccs.obj: /home/rps/ti/ccs1281/ccs/tools/compiler/ti-cgt-arm_20.2.7.LTS/include/stdbool.h
 
 ../tm4c123gh6pm_startup_ccs.c:
 
@@ -36,7 +37,9 @@ tm4c123gh6pm_startup_ccs.obj: ../tm4c123gh6pm.h
 
 /home/rps/ti/ccs1281/ccs/tools/compiler/ti-cgt-arm_20.2.7.LTS/include/sys/_stdint.h:
 
-../interrupts.h:
+../faults.h:
 
-../tm4c123gh6pm.h:
+../kernel.h:
+
+/home/rps/ti/ccs1281/ccs/tools/compiler/ti-cgt-arm_20.2.7.LTS/include/stdbool.h:
 
