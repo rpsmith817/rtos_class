@@ -57,7 +57,7 @@ int main(void)
 	setup_handlers();   //enable fault handling where required
     mpuEnablePls();     //enable the mpu
 
-	setpsp((void*)HEAP_AT);       //set the psp bit to whatever it should be.
+	setpsp((void*)HEAP_AT+PAGES*PAGE_SIZE);       //set the psp bit to the bottom, where the non kernel stuff lives.
 	setASPBit();        //set the ASP bit so that we get into program stack
 
 
