@@ -29,44 +29,7 @@
 //all hardware inits
 void init_hw(void)
 {
-	initSystemClockTo40Mhz();   //setup system clock to 40MHz
 
-	initUart0();    //set up the USB UART0 on PA0 + PA1
-
-//setup for buttons etc, code courtesy of losh from iot.
-	//enable required ports
-	enablePort(PORTA);
-	enablePort(PORTC);
-	enablePort(PORTD);
-	enablePort(PORTE);
-	enablePort(PORTF);
-
-	//setup buttons
-	selectPinDigitalInput(PORTC,4);
-    enablePinPullup(PORTC,4);
-	selectPinDigitalInput(PORTC,5);
-    enablePinPullup(PORTC,5);
-	selectPinDigitalInput(PORTC,6);
-    enablePinPullup(PORTC,6);
-	selectPinDigitalInput(PORTC,7);
-    enablePinPullup(PORTC,7);
-	selectPinDigitalInput(PORTD,6);
-    enablePinPullup(PORTD,6);
-	selectPinDigitalInput(PORTA,3);
-    enablePinPullup(PORTA,3);
-	selectPinDigitalInput(PORTA,4);
-    enablePinPullup(PORTA,4);
-
-    //setup LEDs
-    selectPinPushPullOutput(PORTE,4);
-    selectPinPushPullOutput(PORTE,3);
-    selectPinPushPullOutput(PORTE,2);
-    selectPinPushPullOutput(PORTE,1);
-    selectPinPushPullOutput(PORTF,1);
-    selectPinPushPullOutput(PORTF,2);
-    selectPinPushPullOutput(PORTF,3);
-
-    return;
 }
 
 //loop for the PSP area.

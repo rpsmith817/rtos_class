@@ -75,7 +75,7 @@ void enablePort(PORT port)
             SYSCTL_GPIOHBCTL_R &= ~32;
         case ALLPORTS:
             SYSCTL_RCGCGPIO_R |= SYSCTL_RCGCGPIO_R0 |  SYSCTL_RCGCGPIO_R1 |  SYSCTL_RCGCGPIO_R2 |  SYSCTL_RCGCGPIO_R3 |  SYSCTL_RCGCGPIO_R4 |  SYSCTL_RCGCGPIO_R5;
-            SYSCTL_GPIOHBCTL_R &= 0x3F;
+            SYSCTL_GPIOHBCTL_R &= ~0x3F;
     }
     _delay_cycles(3);
 }
@@ -101,6 +101,8 @@ void disablePort(PORT port)
             break;
         case PORTF:
             SYSCTL_RCGCGPIO_R &= ~SYSCTL_RCGCGPIO_R5;
+        case ALLPORTS:
+            SYSCTL_RCGCGPIO_R &= ~(SYSCTL_RCGCGPIO_R0 & SYSCTL_RCGCGPIO_R1 & SYSCTL_RCGCGPIO_R2 & SYSCTL_RCGCGPIO_R3 & SYSCTL_RCGCGPIO_R4 & SYSCTL_RCGCGPIO_R5);
     }
     _delay_cycles(3);
 }

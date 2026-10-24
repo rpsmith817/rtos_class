@@ -39,6 +39,41 @@ void initHw(void)
 {
     // Setup LEDs and pushbuttons
 
+//setup for buttons etc, code courtesy of losh from iot.
+    //enable required ports
+    enablePort(PORTA);
+    enablePort(PORTC);
+    enablePort(PORTD);
+    enablePort(PORTE);
+    enablePort(PORTF);
+
+    //setup buttons
+    selectPinDigitalInput(PORTC,4);
+    enablePinPullup(PORTC,4);
+    selectPinDigitalInput(PORTC,5);
+    enablePinPullup(PORTC,5);
+    selectPinDigitalInput(PORTC,6);
+    enablePinPullup(PORTC,6);
+    selectPinDigitalInput(PORTC,7);
+    enablePinPullup(PORTC,7);
+    selectPinDigitalInput(PORTD,6);
+    enablePinPullup(PORTD,6);
+    selectPinDigitalInput(PORTA,3);
+    enablePinPullup(PORTA,3);
+    selectPinDigitalInput(PORTA,4);
+    enablePinPullup(PORTA,4);
+
+    //setup LEDs
+    selectPinPushPullOutput(PORTE,4);
+    selectPinPushPullOutput(PORTE,3);
+    selectPinPushPullOutput(PORTE,2);
+    selectPinPushPullOutput(PORTE,1);
+    selectPinPushPullOutput(PORTF,1);
+    selectPinPushPullOutput(PORTF,2);
+    selectPinPushPullOutput(PORTF,3);
+
+    return;
+
     // Power-up flash
     setPinValue(GREEN_LED, 1);
     waitMicrosecond(250000);
@@ -49,7 +84,7 @@ void initHw(void)
 // REQUIRED: add code to return a value from 0-127 indicating which of 7 PBs are pressed
 uint8_t readPbs(void)
 {
-    return 0;
+    return ((!getPinValue(PORTC,4) <<6) + (!getPinValue(PORTC,5) <<5) + (!getPinValue(PORTC,6) <<4) + (!getPinValue(PORTC,7) <<3) + (!getPinValue(PORTD,6) <<2) + (!getPinValue(PORTA,3) <<1) + (!getPinValue(PORTA,4) <<0));
 }
 
 // one task must be ready at all times or the scheduler will fail
