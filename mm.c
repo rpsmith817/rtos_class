@@ -359,12 +359,14 @@ void addSramAccessWindow(uint64_t *srdBitMask, uint32_t *baseAdd, uint32_t size_
 
 //dunno. This is mentioned in the doc, called with the values (uint32_t*)0x20000000 and 32768.
 //we will make this a function that calls the add window function and apply window function for a given base address and size of access window.
-void setSramAccessWindow(uint32_t *baseAdd, uint32_t size_in_bytes)
+uint64_t setSramAccessWindow(uint32_t *baseAdd, uint32_t size_in_bytes)
 {
-    uint64_t srdBitMask = createNoSramAccess();               //pull least access at first
+    uint64_t srdBitMask = createNoSramAccess();             //pull least access at first
     addSramAccessWindow(&srdBitMask,baseAdd,size_in_bytes); //clear out portions we want to give access
     applySramAccessMask(srdBitMask);                        //apply our changes
+    return srdBitMask;
 }
+
 
 
 // REQUIRED: initialize MPU here
@@ -373,4 +375,5 @@ void initMpu(void)
     // REQUIRED: call your MPU functions here
     mpuEnablePls();
 }
+
 
