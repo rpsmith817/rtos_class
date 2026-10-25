@@ -138,7 +138,7 @@ void free_to_heap(void *p)
     while((i<PAGES) && (the_map.pages[i].start != p)){i++;} //loop through til we find the page, but bound our checks to the correct range
     if(i<PAGES)                                             //if less than pages we found a match
     {
-        if((the_map.pages[i].the_pid == 0) || ((the_map.pages[i].the_pid != current_pid) && (current_pid != 0))){ return;}   //if we are already free then leave. if we don't have permission or aren't the kernel, then leave.
+        if(the_map.pages[i].the_pid == 0){ return;} //if we are already free then leave.
         the_map.free += the_map.pages[i].size;      //otherwise add some freeness
         clearblock(i);                              //clear the block
         freeBlockCount();                           //and count up all the free pages and set their block sizes for later use.
@@ -336,7 +336,7 @@ void addSramAccessWindow(uint64_t *srdBitMask, uint32_t *baseAdd, uint32_t size_
     uint32_t start = (uint32_t)baseAdd;     //work with the addr as a number instead of constantly casting
     uint8_t first;                          //first subregion index in window
     uint8_t last;                           //one past the last subregion index in the window
-    uint8_t i;                              //an iteratorr
+    uint8_t i;                              //an iterator
 
     //given the size in bytes from a base address, check first if the window is within sram bounds and nonzero.
     if((srdBitMask == NULL) || (size_in_bytes == 0)){ return;}

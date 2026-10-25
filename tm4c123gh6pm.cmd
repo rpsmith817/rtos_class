@@ -11,7 +11,7 @@
 MEMORY
 {
     FLASH (RX) : origin = 0x00000000, length = 0x00040000
-    SRAM (RWX) : origin = 0x20000000, length = 0x00008000
+    SRAM (RWX) : origin = 0x20000000, length = 0x00001000			//we trick the linker here so that the kernel heap will live here, we are explicit about the task heaps in the memory manager, so no need to trick there.
 }
 
 /* The following command line options are set as part of the CCS project.    */
@@ -28,6 +28,7 @@ MEMORY
 
 SECTIONS
 {
+
     .intvecs:   > 0x00000000
     .text   :   > FLASH
     .const  :   > FLASH

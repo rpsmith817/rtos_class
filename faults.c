@@ -22,7 +22,6 @@
 #include "kernel.h"
 #include "cti.h"
 
-extern uint8_t makehardfault;   //a forbidden global, forever enshrined here as a testament to my hubris.
 extern uint32_t current_pid;
 
 //-----------------------------------------------------------------------------
@@ -77,7 +76,7 @@ flags (in hex). Also, print the offending instruction and data addresses. Displa
     NVIC_INT_CTRL_R |= NVIC_INT_CTRL_PEND_SV;
 }
 
-//dump memory
+//dump memory, armv7m ref manual p.B1-532, arm dui 0553a p.2-27
 void dumpmem(char* str, memdump* m)
 {
     getpsp(m->ptr_psp);

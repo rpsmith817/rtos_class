@@ -137,7 +137,18 @@ uint8_t rtosScheduler(void)
 // fn set TMPL bit, and PC <= fn
 void startRtos(void)
 {
-
+    uint8_t i=0;
+    uint8_t task = rtosScheduler();     //call scheduler
+    applySramAccessMask(tcb[task].srd); //set srdbits
+    setpsp(tcb[task].sp);               //set psp
+    setAspBit();                        //set ASP bit
+    setTmpl();                          //set TMPL
+    for(i=0;i<16;i++)
+    {
+    __asm("POP\n");                     //pop the top 16 values, as they are mostly garbage.
+    }
+    _fn fn=tcb[task].pid;               //set pointer to task
+    *fn();                              //run task.
 }
 
 // REQUIRED:
@@ -151,6 +162,7 @@ bool createThread(_fn fn, const char name[], uint8_t priority, uint32_t stackByt
 {
     bool ok = false;
     uint8_t i = 0;
+    (uint32_t)* ptr;    //for register handling, a 32bit pointer. it should provide enough offset each time when we index up to push onto the stack
     bool found = false;
     if (taskCount < MAX_TASKS)
     {
@@ -164,12 +176,45 @@ bool createThread(_fn fn, const char name[], uint8_t priority, uint32_t stackByt
             // find first available tcb record
             i = 0;
             while (tcb[i].state != ST_INVALID) {i++;}
-            tcb[i].state = ST_READY;
-            tcb[i].stackSize = stackBytes;
-            tcb[i].pid = fn;
-            tcb[i].sp = 0;
-            tcb[i].priority = priority;
-            tcb[i].srd = 0;
+            tcb[i].sp = malloc_from_heap(stackBytes);   //try to malloc the amount requested
+            if(tcb[i].sp==NULL)                         //if we don't have space
+            {
+                return 0;                               //then gtfo
+            }
+            tcb[i].state = ST_READY;                    //otherwise set the state to ready
+            tcb[i].stackSize = stackBytes;              //set size
+            tcb[i].pid = fn;                            //set pid
+            tcb[i].priority = priority;                 //set priority
+            tcb[i].srd = setSramAccessWindow(tcb[i].sp,stackBytes); //set the srd and also return the bits that were used. PendSV will handle setting the accesswindow at task runtime, so we don't especially need to clear this yet
+
+            //now push 16 values so that pendsv has something to handle/thinks things have already run before.
+
+            //most values can be garbage, but we need to say thumb, which might mean that xpsr should say thumb.
+            //also PC maybe says thumb too.
+            //we need to know what order things pop in to know what order to push in. lucky that we already know that from fault handling.
+            //ARM DUI 0553A p.2-27 shows from stack top R0,R1,R2,R3,R12,LR,PC,XPSR.
+            //pendsv will upon call store those via h/w, then save R11-R4 by s/w, then save the PsP into tcb, then save the SRD into tcb, then s/w restore the SRD, then restore the PSP, then restore by s/w R4-R11 (backwards), then on starting the function h/w will restore the remaining registers in the reverse order from above.
+            //So: our push order must R0,R1,R2,R3,R12,LR,PC,XPSR,R11,R10,R9,R8,R7,R6,R5,R4
+            //R0 is a function arg, our tasks will probably want 0s
+//            __asm("PUSH 0\n");  //R0
+//            __asm("PUSH 12345\nPUSH 12345\nPUSH 12345\nPUSH 12345\n");//R1:3,R12 should just be junk
+//            __asm("PUSH \".pendSvIsr\"\n"); //LR is the Return Link, which should maybe be pendsv?
+//            __asm("PUSH 2\n");              //PC is the program counter, it might need to also say thumb, but I don't quite know how.
+//            __asm("PUSH 0x01000000\n"); //xPSR, one of the spots we need to say thumb. tm4 datasheet p.81 shows the register def, we want the 24th bit to be 1, I don't think we care about hte rest.
+            //this has to go to a different stack than the kernel stack, so we need to provide some offset info and push there. the placement still stands, so we may as well do them in order too.
+            ptr=(uint32_t *)tcb[i].sp;      //setting our stack pointer to our stack pointer. cast to same type.
+            ptr[0]=(uint32_t)0;             //R0
+            ptr[1]=(uint32_t)12345;         //R1
+            ptr[2]=(uint32_t)12345;         //R2
+            ptr[3]=(uint32_t)12345;         //R3
+            ptr[4]=(uint32_t)12345;         //R12
+            ptr[5]=(void*)(yield);          //LR, this should call a pointer to the yield function, in case it is ever used it'll just audit whether it should be running or not.
+            ptr[6]=(uint32_t)0x1;           //PC, apparently saying 1 in the LSB means it is thumb? idk,
+            ptr[7]=(uint32_t)0x01000000;    //xPSR, as explained above this says thumb.
+            for(i=8;i<16;i++)
+            {
+                ptr[i]=(uint32_t)12345;     //the rest of the registers R11:4
+            }
 
             // increment task count
             taskCount++;
@@ -295,9 +340,13 @@ void pendSvIsr(void)
 
 // REQUIRED: modify this function to add support for the service call
 // REQUIRED: in preemptive code, add code to handle synchronization primitives
-//paired functions courtesy of https://support.arm.com/documentation/107706/0100/System-exceptions/Supervisor-Call---SVC
 void svCallIsr(void)
 {
+
+
+
+//paired functions courtesy of https://support.arm.com/documentation/107706/0100/System-exceptions/Supervisor-Call---SVC
+//these consist of an assembly wrapper and main function. The assembly wrapper helps us decide if we are in the psp or msp when we call it.
 //  __asm(
 //    ".global SVC_Handler_Main\n"
 //    "TST lr, #4\n"
