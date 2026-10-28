@@ -68,5 +68,6 @@ void unlock(int8_t mutex);
 void systickIsr(void);
 void pendSvIsr(void);
 void svCallIsr(void);
+void SVC_Handler(uint32_t* args);
 
 #endif

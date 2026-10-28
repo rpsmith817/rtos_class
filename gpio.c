@@ -35,7 +35,6 @@
 #define OFS_DATA_TO_DEN   72*4*8
 #define OFS_DATA_TO_CR    74*4*8
 #define OFS_DATA_TO_AMSEL 75*4*8
-#define ALLPORTS            365
 
 
 //-----------------------------------------------------------------------------
@@ -73,9 +72,7 @@ void enablePort(PORT port)
         case PORTF:
             SYSCTL_RCGCGPIO_R |= SYSCTL_RCGCGPIO_R5;
             SYSCTL_GPIOHBCTL_R &= ~32;
-        case ALLPORTS:
-            SYSCTL_RCGCGPIO_R |= SYSCTL_RCGCGPIO_R0 |  SYSCTL_RCGCGPIO_R1 |  SYSCTL_RCGCGPIO_R2 |  SYSCTL_RCGCGPIO_R3 |  SYSCTL_RCGCGPIO_R4 |  SYSCTL_RCGCGPIO_R5;
-            SYSCTL_GPIOHBCTL_R &= ~0x3F;
+            break;
     }
     _delay_cycles(3);
 }
@@ -101,8 +98,6 @@ void disablePort(PORT port)
             break;
         case PORTF:
             SYSCTL_RCGCGPIO_R &= ~SYSCTL_RCGCGPIO_R5;
-        case ALLPORTS:
-            SYSCTL_RCGCGPIO_R &= ~(SYSCTL_RCGCGPIO_R0 & SYSCTL_RCGCGPIO_R1 & SYSCTL_RCGCGPIO_R2 & SYSCTL_RCGCGPIO_R3 & SYSCTL_RCGCGPIO_R4 & SYSCTL_RCGCGPIO_R5);
     }
     _delay_cycles(3);
 }

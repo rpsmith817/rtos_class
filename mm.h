@@ -69,7 +69,7 @@ void applySramAccessMask(uint64_t srdBitMask);
 void addSramAccessWindow(uint64_t * srdBitMask, uint32_t *baseAdd, uint32_t size_in_bytes);
 
 //dunno. This is mentioned in the doc, called in addSramAccessWindow with the values (uint32_t*)0x20000000 and 32768
-void setSramAccessWindow(uint32_t *ijustworkhere, uint32_t metoo);
+uint64_t setSramAccessWindow(uint32_t *ijustworkhere, uint32_t metoo);
 
 
 

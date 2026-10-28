@@ -79,8 +79,8 @@ flags (in hex). Also, print the offending instruction and data addresses. Displa
 //dump memory, armv7m ref manual p.B1-532, arm dui 0553a p.2-27
 void dumpmem(char* str, memdump* m)
 {
-    getpsp(m->ptr_psp);
-    getmsp(m->ptr_msp);
+    m->ptr_psp = getpsp();
+    m->ptr_msp=getmsp();
     m->fault_flags = NVIC_FAULT_STAT_R & FAULT_FLAG_MASK; //load the fault status register into the dump
 
     putsUart0("PSP: ");

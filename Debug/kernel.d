@@ -11,6 +11,7 @@ kernel.obj: /home/rps/ti/ccs1281/ccs/tools/compiler/ti-cgt-arm_20.2.7.LTS/includ
 kernel.obj: /home/rps/ti/ccs1281/ccs/tools/compiler/ti-cgt-arm_20.2.7.LTS/include/machine/_types.h
 kernel.obj: /home/rps/ti/ccs1281/ccs/tools/compiler/ti-cgt-arm_20.2.7.LTS/include/machine/_stdint.h
 kernel.obj: /home/rps/ti/ccs1281/ccs/tools/compiler/ti-cgt-arm_20.2.7.LTS/include/sys/_stdint.h
+kernel.obj: /home/rps/ti/ccs1281/ccs/tools/compiler/ti-cgt-arm_20.2.7.LTS/include/stddef.h
 kernel.obj: ../tm4c123gh6pm.h
 kernel.obj: ../mm.h
 kernel.obj: ../kernel.h
@@ -18,6 +19,7 @@ kernel.obj: /home/rps/ti/ccs1281/ccs/tools/compiler/ti-cgt-arm_20.2.7.LTS/includ
 kernel.obj: ../faults.h
 kernel.obj: ../uart0.h
 kernel.obj: ../cti.h
+kernel.obj: ../asp_bit.h
 
 ../kernel.c:
 
@@ -41,6 +43,8 @@ kernel.obj: ../cti.h
 
 /home/rps/ti/ccs1281/ccs/tools/compiler/ti-cgt-arm_20.2.7.LTS/include/sys/_stdint.h:
 
+/home/rps/ti/ccs1281/ccs/tools/compiler/ti-cgt-arm_20.2.7.LTS/include/stddef.h:
+
 ../tm4c123gh6pm.h:
 
 ../mm.h:
@@ -54,4 +58,6 @@ kernel.obj: ../cti.h
 ../uart0.h:
 
 ../cti.h:
+
+../asp_bit.h:
 

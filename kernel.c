@@ -13,12 +13,14 @@
 //-----------------------------------------------------------------------------
 
 #include <stdint.h>
+#include <stddef.h>
 #include "tm4c123gh6pm.h"
 #include "mm.h"
 #include "kernel.h"
 #include "faults.h"
 #include "uart0.h"
 #include "cti.h"
+#include "asp_bit.h"
 
 //-----------------------------------------------------------------------------
 // RTOS Defines and Kernel Variables
@@ -141,14 +143,14 @@ void startRtos(void)
     uint8_t task = rtosScheduler();     //call scheduler
     applySramAccessMask(tcb[task].srd); //set srdbits
     setpsp(tcb[task].sp);               //set psp
-    setAspBit();                        //set ASP bit
+    setASPBit();                        //set ASP bit
     setTmpl();                          //set TMPL
     for(i=0;i<16;i++)
     {
-    __asm("POP\n");                     //pop the top 16 values, as they are mostly garbage.
+        asm_pop();                     //pop the top 16 values, as they are mostly garbage.
     }
-    _fn fn=tcb[task].pid;               //set pointer to task
-    *fn();                              //run task.
+    _fn fn=(_fn)tcb[task].pid;               //set pointer to task
+    fn();                              //run task.
 }
 
 // REQUIRED:
@@ -162,7 +164,7 @@ bool createThread(_fn fn, const char name[], uint8_t priority, uint32_t stackByt
 {
     bool ok = false;
     uint8_t i = 0;
-    (uint32_t)* ptr;    //for register handling, a 32bit pointer. it should provide enough offset each time when we index up to push onto the stack
+    uint32_t* ptr;    //for register handling, a 32bit pointer. it should provide enough offset each time when we index up to push onto the stack
     bool found = false;
     if (taskCount < MAX_TASKS)
     {
@@ -203,18 +205,20 @@ bool createThread(_fn fn, const char name[], uint8_t priority, uint32_t stackByt
 //            __asm("PUSH 0x01000000\n"); //xPSR, one of the spots we need to say thumb. tm4 datasheet p.81 shows the register def, we want the 24th bit to be 1, I don't think we care about hte rest.
             //this has to go to a different stack than the kernel stack, so we need to provide some offset info and push there. the placement still stands, so we may as well do them in order too.
             ptr=(uint32_t *)tcb[i].sp;      //setting our stack pointer to our stack pointer. cast to same type.
+            tcb[i].sp-= 16*4;               //gotta add (well, subtract) to the sp the amount of entries we are adding. each register is 4 bytes wide, we have 16 of them.
             ptr[0]=(uint32_t)0;             //R0
             ptr[1]=(uint32_t)12345;         //R1
             ptr[2]=(uint32_t)12345;         //R2
             ptr[3]=(uint32_t)12345;         //R3
             ptr[4]=(uint32_t)12345;         //R12
-            ptr[5]=(void*)(yield);          //LR, this should call a pointer to the yield function, in case it is ever used it'll just audit whether it should be running or not.
+            ptr[5]=(uint32_t)(yield);       //LR, this should call a pointer to the yield function, in case it is ever used it'll just audit whether it should be running or not.
             ptr[6]=(uint32_t)0x1;           //PC, apparently saying 1 in the LSB means it is thumb? idk,
             ptr[7]=(uint32_t)0x01000000;    //xPSR, as explained above this says thumb.
             for(i=8;i<16;i++)
             {
                 ptr[i]=(uint32_t)12345;     //the rest of the registers R11:4
             }
+
 
             // increment task count
             taskCount++;
@@ -248,8 +252,7 @@ void setThreadPriority(_fn fn, uint8_t priority)
 void yield(void)
 {
     //call pendsv through svcall
-//    __asm("SVC 1\n");
-
+    asm_svc_1();    //yield is 1, so call 1
 }
 
 // REQUIRED: modify this function to support 1ms system timer
@@ -257,7 +260,7 @@ void yield(void)
 void sleep(uint32_t tick)
 {
     //svcall
-//    __asm("SVC 2\n");
+    asm_svc_2();    //sleep is 2, call 2
 }
 
 // REQUIRED: modify this function to wait a semaphore using pendsv
@@ -308,77 +311,119 @@ void systickIsr(void)
 // REQUIRED: in coop and preemptive, modify this function to add support for task switching
 void pendSvIsr(void)
 {
-
-    uint32_t val;
-    char str[BUFFER_STR_SIZE];
-
-
-
-    putsUart0("Pendsv in thread ");
-    intToAlpha(current_pid,(char*)str);
-    putsUart0((char*)str);
-    putsUart0("\r\n");
-
-    val = NVIC_FAULT_ADDR_R & DERR_IERR_FLAG_MASK;
-
-    if(val)
+    //whatever thread we were on has saved R0:3,R12,LR,PC,xPSR
+    //we need to save R4:11, and save the sp. Lets not increment or decrement it, as these values must always be saved and pulled each time.
+    _disable_interrupts();  //critical section so we don't blow up r4:r11 inside an interrupt.
+    uint32_t* ptr = asm_pull();  //pull values into stack at the msp pointer
+    uint8_t i=0;
+    for(i=0; i<8;i++)           //hardware saved the first 8, above where the sp points. lets grab the rest.
     {
-        putsUart0("memory protection called this handler\r\n");
+        ((uint32_t*)tcb[taskCurrent].sp)[i+8] = ptr[i];  //we know from debug handler that the first 8 values at the sp are already used, we want to place the next 8.
     }
+    _enable_interrupts();   //back to interrupt-land
+    //now call the scheduler
 
-    NVIC_INT_CTRL_R |= NVIC_INT_CTRL_UNPEND_SV;     //clear the pend so we don't return.
+    //now restore the psp of the new task
+
+    //set the SRD for new task
+
+    //pop registers????
 
 
-
+//    uint32_t val;
+//    char str[BUFFER_STR_SIZE];
+//
+//    putsUart0("Pendsv in thread ");
+//    intToAlpha(current_pid,(char*)str);
+//    putsUart0((char*)str);
+//    putsUart0("\r\n");
+//
+//    val = NVIC_FAULT_ADDR_R & DERR_IERR_FLAG_MASK;
+//
+//    if(val)
+//    {
+//        putsUart0("memory protection called this handler\r\n");
+//    }
 
     //store task data, load data, start new task
 
 
 
 
+    NVIC_INT_CTRL_R = NVIC_INT_CTRL_UNPEND_SV;     //clear the pend so we don't return by accident.
 }
 
 // REQUIRED: modify this function to add support for the service call
 // REQUIRED: in preemptive code, add code to handle synchronization primitives
 void svCallIsr(void)
 {
+    uint32_t* ptr = getpsp();
+    SVC_Handler(ptr);
+}
 
+void SVC_Handler(uint32_t* args)
+{
+    uint8_t svc_number;
+    svc_number = ((uint8_t *)args[6])[-2];  //points to the pc, then finds 2 vals back to the imm used in the call. (thanks to arm doc, see below commented function.)
 
+    switch (svc_number)
+    {
+    case 1: //yield
+        NVIC_INT_CTRL_R = NVIC_INT_CTRL_PEND_SV; //sets the pendsvcall, but because the priority is lower we go after this call ends.
+        break;
+    case 2: //sleep
+        //state = delay
+        //ticks = R0???whatever arg that sleep(uint32_t tick) had add that to the systick tasklist tick count.
+        tcb[taskCurrent].ticks = args[0];           //our R0 should be the same as the calling function's arg.
+        tcb[taskCurrent].state = ST_DELAYED;
+        //pendsv
+        NVIC_INT_CTRL_R = NVIC_INT_CTRL_PEND_SV;   //pendsv as above
+        break;
+    default:
+        NVIC_INT_CTRL_R = NVIC_INT_CTRL_PEND_SV;   //if we don't know what we are doing then lets at least see if pendsv has a better idea.
+    }
 
-//paired functions courtesy of https://support.arm.com/documentation/107706/0100/System-exceptions/Supervisor-Call---SVC
-//these consist of an assembly wrapper and main function. The assembly wrapper helps us decide if we are in the psp or msp when we call it.
-//  __asm(
-//    ".global SVC_Handler_Main\n"
-//    "TST lr, #4\n"
-//    "ITE EQ\n"
-//    "MRSEQ r0, MSP\n"
-//    "MRSNE r0, PSP\n"
-//    "B SVC_Handler_Main\n"
-//  ) ;
+}
+
+////paired functions courtesy of https://support.arm.com/documentation/107706/0100/System-exceptions/Supervisor-Call---SVC
+////these consist of an assembly wrapper and main function. The assembly wrapper helps us decide if we are in the psp or msp when we call it, and so find the right value to read. We likely only care about psp anyways, but I can't get the asm to work so this is abandoned now.
+//void SVC_Handler(void)
+//{
+//    __asm(
+//            ".global SVC_Handler_Main\n"
+//            "TST lr, #4\n"
+//            "ITE EQ\n"
+//            "MRSEQ r0, MSP\n"
+//            "MRSNE r0, PSP\n"
+//            "B SVC_Handler_Main\n"
+//    );
 //}
+//
 //void SVC_Handler_Main(unsigned int *svc_args)
 //{
 //    //only yield right now, call pendsv
 //    unsigned int svc_number;
 //
 //    /*
-//    * Stack contains:
-//    * r0, r1, r2, r3, r12, r14, the return address and xPSR
-//    * First argument (r0) is svc_args[0]
-//    */
-//    svc_number = ( ( char * )svc_args[ 6 ] )[ -2 ] ;
-//    switch( svc_number )
+//     * Stack contains:
+//     * r0, r1, r2, r3, r12, r14, the return address and xPSR
+//     * First argument (r0) is svc_args[0]
+//     */
+//    svc_number = ((char*) svc_args[6])[-2];
+//    switch (svc_number)
 //    {
-//        case 1: //yield
-//            NVIC_INT_CTRL_R |= NVIC_INT_CTRL_PEND_SV;   //sets the pendsvcall, but because the priority is lower we go after this call ends.
-//            break;
-//        case 2: //sleep
-//            //state = delay
-//            //ticks = R0???whatever arg that sleep(uint32_t tick) had add that to the systick tasklist tick count.
-//            //pendsv
-//            NVIC_INT_CTRL_R |= NVIC_INT_CTRL_PEND_SV;   //pendsv as above
-//
-//        default:
-//            break;
+//    case 1: //yield
+//        NVIC_INT_CTRL_R = NVIC_INT_CTRL_PEND_SV; //sets the pendsvcall, but because the priority is lower we go after this call ends.
+//        break;
+//    case 2: //sleep
+//        //state = delay
+//        //ticks = R0???whatever arg that sleep(uint32_t tick) had add that to the systick tasklist tick count.
+//        tcb[taskCurrent].ticks = svc_args[0];
+//        tcb[taskCurrent].state = ST_DELAYED;
+//        //pendsv
+//        NVIC_INT_CTRL_R = NVIC_INT_CTRL_PEND_SV;   //pendsv as above
+//        break;
+//    default:
+//        NVIC_INT_CTRL_R = NVIC_INT_CTRL_PEND_SV;   //if we don't know what we are doing then lets at least see if pendsv has a better idea.
 //    }
-}
+//}
