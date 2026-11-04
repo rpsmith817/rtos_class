@@ -26,6 +26,9 @@
 // RTOS Defines and Kernel Variables
 //-----------------------------------------------------------------------------
 
+//some important LR value
+#define LR_VAL 0xFFFFFFFD
+
 // mutex
 typedef struct _mutex
 {
@@ -57,6 +60,8 @@ semaphore semaphores[MAX_SEMAPHORES];
 uint8_t taskCurrent = 0;          // index of last dispatched task
 uint8_t taskCount = 0;            // total number of valid tasks
 uint32_t current_pid;             // the current pid
+uint8_t priority_indices[8];	//holds the indices for each priority level ring.
+
 
 // control
 bool priorityScheduler = true;    // priority (true) or round-robin (false)
@@ -124,14 +129,41 @@ uint8_t rtosScheduler(void)
     bool ok;
     static uint8_t task = 0xFF;
     ok = false;
-    while (!ok)
-    {
-        task++;
-        if (task >= MAX_TASKS)
-            task = 0;
-        ok = (tcb[task].state == ST_READY);
-    }
-    return task;
+	uint8_t pri = 0;
+	uint8_t count;
+
+	if(priorityScheduler)
+	{
+		while(!ok)
+		{
+			count = 0;
+			task  = priority_indices[pri];
+			
+			while (!ok && (count != MAX_TASKS))
+			{
+				if (task >= MAX_TASKS)
+				{
+					task = 0;
+				}
+				ok = (tcb[task].state == ST_READY && tcb[task].priority == pri);
+				
+				task++;
+			}
+			pri++;	
+		}
+		return task;
+	}
+	else
+	{
+		while (!ok)
+		{
+			task++;
+			if (task >= MAX_TASKS)
+				task = 0;
+			ok = (tcb[task].state == ST_READY);
+		}
+		return task;
+	}
 }
 
 // REQUIRED: modify this function to start the operating system
@@ -178,7 +210,7 @@ bool createThread(_fn fn, const char name[], uint8_t priority, uint32_t stackByt
             // find first available tcb record
             i = 0;
             while (tcb[i].state != ST_INVALID) {i++;}
-            tcb[i].sp = malloc_from_heap(stackBytes);   //try to malloc the amount requested
+            tcb[i].sp = (void*)(((uint32_t*)malloc_from_heap(stackBytes))+stackBytes);   //try to malloc the amount requested: convet malloc to something that can have math done to it, add stackByte size to get to the top, then cast to void pointer for the tcb.sp to use.
             if(tcb[i].sp==NULL)                         //if we don't have space
             {
                 return 0;                               //then gtfo
@@ -205,7 +237,7 @@ bool createThread(_fn fn, const char name[], uint8_t priority, uint32_t stackByt
 //            __asm("PUSH 0x01000000\n"); //xPSR, one of the spots we need to say thumb. tm4 datasheet p.81 shows the register def, we want the 24th bit to be 1, I don't think we care about hte rest.
             //this has to go to a different stack than the kernel stack, so we need to provide some offset info and push there. the placement still stands, so we may as well do them in order too.
             ptr=(uint32_t *)tcb[i].sp;      //setting our stack pointer to our stack pointer. cast to same type.
-            tcb[i].sp-= 16*4;               //gotta add (well, subtract) to the sp the amount of entries we are adding. each register is 4 bytes wide, we have 16 of them.
+            tcb[i].sp = (void*)((uint32_t*)tcb[i].sp-(16*4));               //gotta add (well, subtract) to the sp the amount of entries we are adding. each register is 4 bytes wide, we have 16 of them. make sure to cast to a type we can do math to prior to doing math.
             ptr[0]=(uint32_t)0;             //R0
             ptr[1]=(uint32_t)12345;         //R1
             ptr[2]=(uint32_t)12345;         //R2
@@ -313,16 +345,17 @@ void pendSvIsr(void)
 {
     //whatever thread we were on has saved R0:3,R12,LR,PC,xPSR
     //we need to save R4:11, and save the sp. Lets not increment or decrement it, as these values must always be saved and pulled each time.
-    _disable_interrupts();  //critical section so we don't blow up r4:r11 inside an interrupt.
-    uint32_t* ptr = asm_pull();  //pull values into stack at the msp pointer
-    uint8_t i=0;
-    for(i=0; i<8;i++)           //hardware saved the first 8, above where the sp points. lets grab the rest.
-    {
-        ((uint32_t*)tcb[taskCurrent].sp)[i+8] = ptr[i];  //we know from debug handler that the first 8 values at the sp are already used, we want to place the next 8.
-    }
-    _enable_interrupts();   //back to interrupt-land
-    //now call the scheduler
+//    uint32_t* ptr = asm_pull();  //pull values into stack at the msp pointer
+//    uint8_t i=0;
+//    for(i=0; i<8;i++)           //hardware saved the first 8, above where the sp points. lets grab the rest.
+//    {
+//        ((uint32_t*)tcb[taskCurrent].sp)[i+8] = ptr[i];  //we know from debug handler that the first 8 values at the sp are already used, we want to place the next 8.
+//    }
+    //nah, just move directly from register into the PSP.
+    asm_pushR4onwards();    //pushed on.
 
+    //now call the scheduler
+    taskCurrent = rtosScheduler();
     //now restore the psp of the new task
 
     //set the SRD for new task
@@ -371,6 +404,7 @@ void SVC_Handler(uint32_t* args)
     case 1: //yield
         NVIC_INT_CTRL_R = NVIC_INT_CTRL_PEND_SV; //sets the pendsvcall, but because the priority is lower we go after this call ends.
         break;
+
     case 2: //sleep
         //state = delay
         //ticks = R0???whatever arg that sleep(uint32_t tick) had add that to the systick tasklist tick count.
@@ -379,6 +413,56 @@ void SVC_Handler(uint32_t* args)
         //pendsv
         NVIC_INT_CTRL_R = NVIC_INT_CTRL_PEND_SV;   //pendsv as above
         break;
+
+    case 3: //wait
+        if(count>0)
+        {
+            count--;
+        }
+        else
+        {
+            //state=blocked;
+            //record blocking semaphore
+            //add task to queue, inc queue count
+        }
+        break;
+
+    case 4: //post
+        count++;
+        if(queue_count>0)
+        {
+            //find next task in queue
+            //mark as ready
+            //dec queue_count
+            //age the list (move everyone up in queue?)
+        }
+        //maybe pendsv if awakened task priority is more than current task.
+        break;
+    case 5: //lock
+        if(!lock)
+        {
+//            lock = yesplease;
+        }
+        else
+        {
+            //mark block on mutex
+            //add to queue, inc queue_count
+            //record mutex blocking
+            //locked by me
+            //pendsv
+        }
+    case 6: //unlock
+        if(locked_by == currentTask)
+        {
+//            lock = false;
+        }
+        if(queue_count>0)
+        {
+            //mark next task as ready
+            //queue_count --;
+            //age list
+            //optionally pendsv
+        }
     default:
         NVIC_INT_CTRL_R = NVIC_INT_CTRL_PEND_SV;   //if we don't know what we are doing then lets at least see if pendsv has a better idea.
     }

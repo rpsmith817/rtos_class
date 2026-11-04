@@ -14,7 +14,7 @@ extern uint32_t* getpsp(void);          //return the psp address as pointer
 extern uint32_t* getmsp(void);          //return mps address as pointer
 extern void memBarrier(void);           //dsb/isb per p.127+p.134
 extern void asm_pop(void);              //pop into R0, but don't return R0 so just pop
-extern uint32_t* asm_pull(void);        //pull r4:r11 into pointer.
+extern uint32_t* asm_pushR4onwards(void);//push r4:r11 into pointer.
 
 
 //svc handlers want an imm, so we will call each number as a straight call with imm rather than work out how to get the arg into there or read the arg later in svc handler

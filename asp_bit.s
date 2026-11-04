@@ -79,8 +79,8 @@ asm_pop:				;
 ;;;;;;;;;;;;;;;;;;;;;;;;;
 ;	pull r4:r11 onto the sp. kinda bad to do when we are tryna save some registers, except that the spot we are using is in the msp so it is fine.
 ;   clues found from https://www.wadixtech.com/blog/arm-calling-convention-on-cortex-m-how-arguments-registers-and-the-stack-really-work
-asm_pull:
-		MRS R0, MSP		;
+asm_pushR4onwards:
+		MRS R0, PSP		;
 		STMDB R0!,{R4-R11};
 		BX LR			;
 
