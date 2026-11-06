@@ -29,18 +29,18 @@
 
 //an extern def is in cti.h for anything that needs this table.
 const Cti_Cmd_t cti_cmd_list[] = {
-    {"help",        cmd_helpMe,     0}, //get list of commands
-    {"reboot",      cmd_rebootie,   0}, //reboot the device
-    {"ps",          cmd_ps,         0}, //get process status...maybe it returns the status of all running processes?
-    {"ipcs",        cmd_ipcs,       0}, //call interprocess thread, whatever that means for this system
-    {"kill",        cmd_kill,       1}, //kill [pid] -> terminate process by id
-    {"pkill",       cmd_pkill,      1}, //kill [pname] -> terminate process by name
-    {"pi",          cmd_pi,         1}, //pi on|off -> toggles priority inheritance
-    {"preempt",     cmd_preempt,    1}, // on|off ->toggles preemption
-    {"sched",       cmd_sched,      1}, // prio|rr -> toggles priority or round-robin scheduling
-    {"pidof",       cmd_pidof,      1}, //displays pid be pname
-    {"proc_name",   cmd_bg_runner,  1}, //runs named program in background. we may need to make an entry for each function name?
-    {0,0,0}   //the NULL entry to let us know we are done. dunno if we need it but it is nice to have.
+    {"help",        cmd_helpMe,     0}, //get list of commands                                                                                  null
+    {"reboot",      cmd_rebootie,   0}, //reboot the device                                                                                     0
+    {"ps",          cmd_ps,         0}, //get process status...maybe it returns the status of all running processes?                            1
+    {"ipcs",        cmd_ipcs,       0}, //call interprocess thread, whatever that means for this system                                         2
+    {"kill",        cmd_kill,       1}, //kill [pid] -> terminate process by id                                                                 3
+    {"pkill",       cmd_pkill,      1}, //kill [pname] -> terminate process by name                                                             4
+    {"pi",          cmd_pi,         1}, //pi on|off -> toggles priority inheritance                                                             5
+    {"preempt",     cmd_preempt,    1}, // on|off ->toggles preemption                                                                          6
+    {"sched",       cmd_sched,      1}, // prio|rr -> toggles priority or round-robin scheduling                                                7
+    {"pidof",       cmd_pidof,      1}, //displays pid be pname                                                                                 8
+    {"proc_name",   cmd_bg_runner,  1}, //runs named program in background. we may need to make an entry for each function name?                9
+    {0,0,0}   //the NULL entry to let us know we are done. dunno if we need it but it is nice to have.                                          also null
 };
 
 //eventually this will put out a list of commands so I know what I should be typing for tests.
@@ -68,11 +68,15 @@ void cmd_helpMe(USER_DATA *data)
 
 void cmd_rebootie(USER_DATA *data)
 {
-    rebootie();
+    rebooter(0,0);
+}
+void rebooter(uint8_t a, uint8_t b)
+{
+    asm_svc_7();
 }
 void cmd_ps(USER_DATA *data)
 {
-    ps();
+    ps(0,1);
 }
 void cmd_ipcs(USER_DATA *data)
 {
@@ -81,16 +85,20 @@ void cmd_ipcs(USER_DATA *data)
 void cmd_kill(USER_DATA *data)
 {
     //get the integer
-
     //then call the function
-    kill(getFieldInteger(data,1));
+    kill(getFieldInteger(data,1),3);
+
 }
 void cmd_pkill(USER_DATA *data)
 {
     //get the string
-
     //then call the function
     pkill(getFieldString(data,1));
+
+    //r0 is first arg
+    //r1 is second arg.
+
+    //we will use r1 to check what command is sent, while r0 is the actual arg we use.
 }
 void cmd_pi(USER_DATA *data)
 {
@@ -189,7 +197,7 @@ void initUart0()
             " NOP\n"
             " NOP\n");    //replacement to legacy intrinsic that is no longer supported. waits 3 cycles. REF:https://e2e.ti.com/support/tools/code-composer-studio-group/ccs/f/code-composer-studio-forum/961241/__delay_cycles-is-undefined
                         //Though even that didn't work, so breaking it out into discrete nops was needed.
-                        //this was all old crap fixing an IDE issue, which has been resolved in another way, but since the code works lets leave it. The assembly should just make some nops, which is what we want anyways.
+                        //this was all old crap fixing an IDE issue, which has been resolved in another way, but since the code works lets leave it. The assembly should just make some nops, which is what we want anyways. Probably more than 3 cycles but it is fine.
     // Configure UART0 pins
     GPIO_PORTA_DR2R_R |= UART_TX_MASK;                  // set drive strength to 2mA (not needed since default configuration -- for clarity)
     GPIO_PORTA_DEN_R |= UART_TX_MASK | UART_RX_MASK;    // enable digital on UART0 pins

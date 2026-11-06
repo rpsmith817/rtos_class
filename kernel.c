@@ -149,7 +149,7 @@ uint8_t rtosScheduler(void)
 				
 				task++;
 			}
-			pri++;	
+			pri++;
 		}
 		return task;
 	}
@@ -398,6 +398,7 @@ void SVC_Handler(uint32_t* args)
 {
     uint8_t svc_number;
     svc_number = ((uint8_t *)args[6])[-2];  //points to the pc, then finds 2 vals back to the imm used in the call. (thanks to arm doc, see below commented function.)
+    uint8_t arg2;   //we need to grab several of these, so maybe instead we should just grab the arg ptr and proceed using it???
 
     switch (svc_number)
     {
@@ -463,51 +464,44 @@ void SVC_Handler(uint32_t* args)
             //age list
             //optionally pendsv
         }
+    case 7: //new switch to test 2nd arg
+        switch(arg2?)
+        {
+        case 0: //reboot
+            rebootie;
+            break;
+        case 1: //ps
+            //complicated nonsense
+            break;
+        case 2: //ipcs
+            //also complicated nonsense.
+            break;
+        case 3: //kill
+            //if ptr is invalid then kill the calling task.
+            break;
+//        case 4: //pkill
+//            //we will never get here, as pkill is a combination of two other svc funcs.
+//            break;
+        case 5: //pi
+            priorityInheritance = boolean;
+            break;
+        case 6: //preempt
+            preemption = boolean;
+            break;
+        case 7: //sched
+            priorityScheduler = boolean;
+            break;
+        case 8: //pidof
+            //some complicated stuff
+            break;
+        case 9: //proc_name
+            //
+            break;
+        default:
+            rebootie(); //we are error kill everything
+        }
     default:
         NVIC_INT_CTRL_R = NVIC_INT_CTRL_PEND_SV;   //if we don't know what we are doing then lets at least see if pendsv has a better idea.
     }
 
 }
-
-////paired functions courtesy of https://support.arm.com/documentation/107706/0100/System-exceptions/Supervisor-Call---SVC
-////these consist of an assembly wrapper and main function. The assembly wrapper helps us decide if we are in the psp or msp when we call it, and so find the right value to read. We likely only care about psp anyways, but I can't get the asm to work so this is abandoned now.
-//void SVC_Handler(void)
-//{
-//    __asm(
-//            ".global SVC_Handler_Main\n"
-//            "TST lr, #4\n"
-//            "ITE EQ\n"
-//            "MRSEQ r0, MSP\n"
-//            "MRSNE r0, PSP\n"
-//            "B SVC_Handler_Main\n"
-//    );
-//}
-//
-//void SVC_Handler_Main(unsigned int *svc_args)
-//{
-//    //only yield right now, call pendsv
-//    unsigned int svc_number;
-//
-//    /*
-//     * Stack contains:
-//     * r0, r1, r2, r3, r12, r14, the return address and xPSR
-//     * First argument (r0) is svc_args[0]
-//     */
-//    svc_number = ((char*) svc_args[6])[-2];
-//    switch (svc_number)
-//    {
-//    case 1: //yield
-//        NVIC_INT_CTRL_R = NVIC_INT_CTRL_PEND_SV; //sets the pendsvcall, but because the priority is lower we go after this call ends.
-//        break;
-//    case 2: //sleep
-//        //state = delay
-//        //ticks = R0???whatever arg that sleep(uint32_t tick) had add that to the systick tasklist tick count.
-//        tcb[taskCurrent].ticks = svc_args[0];
-//        tcb[taskCurrent].state = ST_DELAYED;
-//        //pendsv
-//        NVIC_INT_CTRL_R = NVIC_INT_CTRL_PEND_SV;   //pendsv as above
-//        break;
-//    default:
-//        NVIC_INT_CTRL_R = NVIC_INT_CTRL_PEND_SV;   //if we don't know what we are doing then lets at least see if pendsv has a better idea.
-//    }
-//}

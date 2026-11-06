@@ -16,24 +16,25 @@ void yield(void);
 
 //for reboot.
 void rebootie(void);
+void reboot(uint8_t a, uint8_t b);
 
 //display process (thread) status.
-void ps(void);
+void ps(void, uint8_t b);
 
 //display inter-process (thread) status.
-void ipcs(void);
+void ipcs(void, uint8_t b);
 
 //kills process (thread) associated with matching pid.
-void kill(uint32_t pid);
+void kill(uint32_t pid, uint8_t b);
 
 //kills process by name
 void pkill(char* proc_name);
 
 //turns preemption on or off
-void preempt(bool on);
+void preempt(bool on, uint8_t b);
 
 //selected priority inheritance on or off
-void pi(bool on);
+void pi(bool on, uint8_t b);
 
 //select priority or round-robin scheduling.
 void sched(bool prio_on);

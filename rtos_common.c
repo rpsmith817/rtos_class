@@ -17,90 +17,69 @@ void rebootie(void)
     }
 }
 
+//calls svc which will eventually call rebootie from kernel instead of task.
+void rebooter(uint8_t a, uint8_t b)
+{
+    asm_svc_7();
+}
+
 //empty thing
 void yield(void);
 
 //display process (thread) status.
-void ps(void)
+void ps(uint8_t a, uint8_t b)
 {
-    putsUart0("PS Called\r\n");
+    asm_svc_7();
 }
 
 //display inter-process (thread) status.
-void ipcs(void)
+void ipcs(uint8_t a, uint8_t b)
 {
-    putsUart0("IPCS Called\r\n");
+    asm_svc_7();
 }
 
 //kills process (thread) associated with matching pid.
-void kill(uint32_t pid)
+void kill(uint32_t pid, uint8_t b)
 {
-    char buf[MAX_CHARS];
-    intToAlpha(pid, (char*)&buf);
-    putsUart0((char*)&buf);
-    putsUart0(" killed");
+    asm_svc_7();
 }
 
 //kills process by name
-void pkill(char* proc_name)
+void pkill(char* proc_name) //no need for additional args as this calls other functions that go to svc.
 {
     uint32_t pid;
-    pid = pidof(proc_name);
-    kill(pid);
+    pid = pidof(proc_name,8);
+    kill(pid,3);
 }
 
 //turns preemption on or off
-void preempt(bool on)
+void preempt(bool on, uint8_t b)
 {
-    if(on)
-    {
-        putsUart0("preempt on\r\n");
-    }
-    else
-    {
-        putsUart0("preempt off\r\n");
-    }
+    asm_svc_7();
 }
 
 //selected priority inheritance on or off
-void pi(bool on)
+void pi(bool on, uint8_t b)
 {
-    if(on)
-    {
-        putsUart0("pi on\r\n");
-        return;
-    }
-    else 
-    {
-        putsUart0("pi off\r\n");
-        return;
-    }
+    asm_svc_7();
 }
 
 //select priority or round-robin scheduling.
-void sched(bool prio_on)
+void sched(bool prio_on, uint8_t b)
 {
-    if(prio_on)
-    {
-        putsUart0("sched prio\r\n");
-    }
-    else
-    {
-        putsUart0("sched rr\r\n");
-    }
+    asm_svc_7();
 }
 
 //returns the pid from the process name
-uint32_t pidof(const char name[])
+uint32_t pidof(const char name[], uint8_t b, uint32_t c)
 {
-    putsUart0((char*)name);
-    putsUart0(" launched\r\n");
-    return 123456789;
+    asm_svc_7();
+    return c;
 }
 
 //runs named process in the background
-void bg_runner(char* name)
+void bg_runner(char* name, uint8_t b)
 {
-//    redLED(1);
+    asm_svc_7();
 }
 
